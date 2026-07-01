@@ -1,7 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Egg, Eye, EyeOff, Mail, Lock, Phone, ShieldCheck, Sprout, LineChart } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import coopImg from "@/assets/coop.jpg";
 
 export const Route = createFileRoute("/login")({
@@ -28,14 +31,74 @@ function LoginPage() {
   const [mode, setMode] = useState<"email" | "phone">("email");
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [isSignup, setIsSignup] = useState(false);
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
 
-  function onSubmit(e: React.FormEvent) {
+  // If already signed in, bounce to the dashboard.
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) navigate({ to: "/plan" });
+    });
+  }, [navigate]);
+
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
+    try {
+      if (isSignup) {
+        const { error } = await supabase.auth.signUp({
+          email: mode === "email" ? email : undefined,
+          phone: mode === "phone" ? phone : undefined,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/plan`,
+          },
+        });
+        if (error) throw error;
+        toast.success(
+          mode === "email"
+            ? "Account created. Check your email to confirm, then sign in."
+            : "Account created. Sign in to continue.",
+        );
+        setIsSignup(false);
+      } else {
+        const { error } =
+          mode === "email"
+            ? await supabase.auth.signInWithPassword({ email, password })
+            : await supabase.auth.signInWithPassword({ phone, password });
+        if (error) throw error;
+        toast.success("Welcome back!");
+        navigate({ to: "/plan" });
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Something went wrong";
+      toast.error(msg);
+    } finally {
       setLoading(false);
+    }
+  }
+
+  async function onGoogle() {
+    setGoogleLoading(true);
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
+      });
+      if (result.error) {
+        toast.error(result.error.message || "Google sign-in failed");
+        setGoogleLoading(false);
+        return;
+      }
+      if (result.redirected) return; // full-page redirect in progress
+      // Session set via popup — go to dashboard
       navigate({ to: "/plan" });
-    }, 900);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Google sign-in failed");
+      setGoogleLoading(false);
+    }
   }
 
   return (
@@ -137,18 +200,30 @@ function LoginPage() {
           </div>
 
           <h2 className="font-display text-4xl font-bold text-primary-deep">
-            Karibu tena 👋
+            {isSignup ? "Join PoultryFit 🐣" : "Karibu tena 👋"}
           </h2>
           <p className="mt-2 text-muted-foreground">
-            Sign in to continue managing your flock.
+            {isSignup
+              ? "Create an account to save your flock plan."
+              : "Sign in to continue managing your flock."}
           </p>
 
           {/* Social */}
           <div className="mt-8 grid grid-cols-2 gap-3">
-            <button className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-medium hover:bg-secondary transition">
-              <GoogleIcon className="h-4 w-4" /> Google
+            <button
+              type="button"
+              onClick={onGoogle}
+              disabled={googleLoading}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-medium hover:bg-secondary transition disabled:opacity-60"
+            >
+              <GoogleIcon className="h-4 w-4" />
+              {googleLoading ? "Connecting…" : "Google"}
             </button>
-            <button className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-medium hover:bg-secondary transition">
+            <button
+              type="button"
+              onClick={() => toast.info("M-PESA sign-in is coming soon.")}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-medium hover:bg-secondary transition"
+            >
               <span className="text-base">🇰🇪</span> M-PESA
             </button>
           </div>
@@ -188,6 +263,10 @@ function LoginPage() {
                 <input
                   required
                   type={mode === "email" ? "email" : "tel"}
+                  value={mode === "email" ? email : phone}
+                  onChange={(e) =>
+                    mode === "email" ? setEmail(e.target.value) : setPhone(e.target.value)
+                  }
                   placeholder={mode === "email" ? "you@farm.co.ke" : "+254 7XX XXX XXX"}
                   className="w-full rounded-xl border border-input bg-card pl-10 pr-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
                 />
@@ -199,6 +278,17 @@ function LoginPage() {
                 <label className="text-sm font-medium text-foreground/80">Password</label>
                 <button
                   type="button"
+                  onClick={async () => {
+                    if (!email) {
+                      toast.info("Enter your email above first.");
+                      return;
+                    }
+                    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                      redirectTo: `${window.location.origin}/login`,
+                    });
+                    if (error) toast.error(error.message);
+                    else toast.success("Password reset link sent.");
+                  }}
                   className="text-xs font-semibold text-primary hover:underline"
                 >
                   Forgot?
@@ -210,7 +300,10 @@ function LoginPage() {
                 </span>
                 <input
                   required
+                  minLength={6}
                   type={showPw ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   className="w-full rounded-xl border border-input bg-card pl-10 pr-10 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
                 />
@@ -239,15 +332,25 @@ function LoginPage() {
               disabled={loading}
               className="w-full inline-flex items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-elegant)] hover:brightness-110 transition disabled:opacity-70"
             >
-              {loading ? "Signing in…" : "Sign in to my flock"}
+              {loading
+                ? isSignup
+                  ? "Creating account…"
+                  : "Signing in…"
+                : isSignup
+                  ? "Create my account"
+                  : "Sign in to my flock"}
             </button>
           </form>
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            New to PoultryFit?{" "}
-            <Link to="/planner" className="font-semibold text-primary hover:underline">
-              Create your flock plan
-            </Link>
+            {isSignup ? "Already have an account?" : "New to PoultryFit?"}{" "}
+            <button
+              type="button"
+              onClick={() => setIsSignup((v) => !v)}
+              className="font-semibold text-primary hover:underline"
+            >
+              {isSignup ? "Sign in" : "Create an account"}
+            </button>
           </p>
 
           <p className="mt-8 text-center text-xs text-muted-foreground">
