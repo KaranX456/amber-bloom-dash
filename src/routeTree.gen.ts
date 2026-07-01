@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as VetsRouteImport } from './routes/vets'
 import { Route as PlannerRouteImport } from './routes/planner'
 import { Route as PlanRouteImport } from './routes/plan'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as DiseaseRouteImport } from './routes/disease'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -30,6 +31,11 @@ const PlanRoute = PlanRouteImport.update({
   path: '/plan',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DiseaseRoute = DiseaseRouteImport.update({
   id: '/disease',
   path: '/disease',
@@ -44,6 +50,7 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/disease': typeof DiseaseRoute
+  '/login': typeof LoginRoute
   '/plan': typeof PlanRoute
   '/planner': typeof PlannerRoute
   '/vets': typeof VetsRoute
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/disease': typeof DiseaseRoute
+  '/login': typeof LoginRoute
   '/plan': typeof PlanRoute
   '/planner': typeof PlannerRoute
   '/vets': typeof VetsRoute
@@ -59,21 +67,23 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/disease': typeof DiseaseRoute
+  '/login': typeof LoginRoute
   '/plan': typeof PlanRoute
   '/planner': typeof PlannerRoute
   '/vets': typeof VetsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/disease' | '/plan' | '/planner' | '/vets'
+  fullPaths: '/' | '/disease' | '/login' | '/plan' | '/planner' | '/vets'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/disease' | '/plan' | '/planner' | '/vets'
-  id: '__root__' | '/' | '/disease' | '/plan' | '/planner' | '/vets'
+  to: '/' | '/disease' | '/login' | '/plan' | '/planner' | '/vets'
+  id: '__root__' | '/' | '/disease' | '/login' | '/plan' | '/planner' | '/vets'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DiseaseRoute: typeof DiseaseRoute
+  LoginRoute: typeof LoginRoute
   PlanRoute: typeof PlanRoute
   PlannerRoute: typeof PlannerRoute
   VetsRoute: typeof VetsRoute
@@ -102,6 +112,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlanRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/disease': {
       id: '/disease'
       path: '/disease'
@@ -122,6 +139,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DiseaseRoute: DiseaseRoute,
+  LoginRoute: LoginRoute,
   PlanRoute: PlanRoute,
   PlannerRoute: PlannerRoute,
   VetsRoute: VetsRoute,
