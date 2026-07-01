@@ -9,11 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VetsRouteImport } from './routes/vets'
 import { Route as PlannerRouteImport } from './routes/planner'
 import { Route as PlanRouteImport } from './routes/plan'
 import { Route as DiseaseRouteImport } from './routes/disease'
 import { Route as IndexRouteImport } from './routes/index'
 
+const VetsRoute = VetsRouteImport.update({
+  id: '/vets',
+  path: '/vets',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PlannerRoute = PlannerRouteImport.update({
   id: '/planner',
   path: '/planner',
@@ -40,12 +46,14 @@ export interface FileRoutesByFullPath {
   '/disease': typeof DiseaseRoute
   '/plan': typeof PlanRoute
   '/planner': typeof PlannerRoute
+  '/vets': typeof VetsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/disease': typeof DiseaseRoute
   '/plan': typeof PlanRoute
   '/planner': typeof PlannerRoute
+  '/vets': typeof VetsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +61,14 @@ export interface FileRoutesById {
   '/disease': typeof DiseaseRoute
   '/plan': typeof PlanRoute
   '/planner': typeof PlannerRoute
+  '/vets': typeof VetsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/disease' | '/plan' | '/planner'
+  fullPaths: '/' | '/disease' | '/plan' | '/planner' | '/vets'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/disease' | '/plan' | '/planner'
-  id: '__root__' | '/' | '/disease' | '/plan' | '/planner'
+  to: '/' | '/disease' | '/plan' | '/planner' | '/vets'
+  id: '__root__' | '/' | '/disease' | '/plan' | '/planner' | '/vets'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,10 +76,18 @@ export interface RootRouteChildren {
   DiseaseRoute: typeof DiseaseRoute
   PlanRoute: typeof PlanRoute
   PlannerRoute: typeof PlannerRoute
+  VetsRoute: typeof VetsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/vets': {
+      id: '/vets'
+      path: '/vets'
+      fullPath: '/vets'
+      preLoaderRoute: typeof VetsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/planner': {
       id: '/planner'
       path: '/planner'
@@ -107,6 +124,7 @@ const rootRouteChildren: RootRouteChildren = {
   DiseaseRoute: DiseaseRoute,
   PlanRoute: PlanRoute,
   PlannerRoute: PlannerRoute,
+  VetsRoute: VetsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
