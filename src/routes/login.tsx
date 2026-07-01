@@ -49,14 +49,14 @@ function LoginPage() {
     setLoading(true);
     try {
       if (isSignup) {
-        const { error } = await supabase.auth.signUp({
-          email: mode === "email" ? email : undefined,
-          phone: mode === "phone" ? phone : undefined,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/plan`,
-          },
-        });
+        const { error } =
+          mode === "email"
+            ? await supabase.auth.signUp({
+                email,
+                password,
+                options: { emailRedirectTo: `${window.location.origin}/plan` },
+              })
+            : await supabase.auth.signUp({ phone, password });
         if (error) throw error;
         toast.success(
           mode === "email"
