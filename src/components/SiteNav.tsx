@@ -1,6 +1,9 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Egg, Menu, X } from "lucide-react";
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
 
 const links = [
   { to: "/", label: "Home" },
@@ -13,6 +16,14 @@ const links = [
 export function SiteNav() {
   const [open, setOpen] = useState(false);
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
+
+  async function signOut() {
+    await supabase.auth.signOut();
+    toast.success("Signed out");
+    navigate({ to: "/" });
+  }
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl">
@@ -47,12 +58,26 @@ export function SiteNav() {
           })}
         </nav>
         <div className="hidden md:flex items-center gap-2">
-          <Link
-            to="/login"
-            className="inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold text-primary hover:bg-secondary transition"
-          >
-            Sign in
-          </Link>
+          {isAuthenticated ? (
+            <>
+              <span className="text-xs text-muted-foreground max-w-[160px] truncate">
+                {user?.email ?? user?.phone}
+              </span>
+              <button
+                onClick={signOut}
+                className="inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold text-primary hover:bg-secondary transition"
+              >
+                Sign out
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/login"
+              className="inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold text-primary hover:bg-secondary transition"
+            >
+              Sign in
+            </Link>
+          )}
           <Link
             to="/planner"
             className="inline-flex items-center rounded-full bg-accent px-5 py-2 text-sm font-semibold text-accent-foreground shadow-[var(--shadow-amber)] hover:brightness-105 transition"
