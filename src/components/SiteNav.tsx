@@ -46,12 +46,20 @@ export function SiteNav() {
             );
           })}
         </nav>
-        <Link
-          to="/planner"
-          className="hidden md:inline-flex items-center rounded-full bg-accent px-5 py-2 text-sm font-semibold text-accent-foreground shadow-[var(--shadow-amber)] hover:brightness-105 transition"
-        >
-          Start planning
-        </Link>
+        <div className="hidden md:flex items-center gap-2">
+          <Link
+            to="/login"
+            className="inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold text-primary hover:bg-secondary transition"
+          >
+            Sign in
+          </Link>
+          <Link
+            to="/planner"
+            className="inline-flex items-center rounded-full bg-accent px-5 py-2 text-sm font-semibold text-accent-foreground shadow-[var(--shadow-amber)] hover:brightness-105 transition"
+          >
+            Start planning
+          </Link>
+        </div>
         <button
           className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border"
           onClick={() => setOpen((v) => !v)}
