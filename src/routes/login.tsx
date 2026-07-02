@@ -176,9 +176,9 @@ function LoginPage() {
 
           <div className="grid grid-cols-3 gap-3 max-w-md">
             {[
-              { icon: Sprout, label: "Flock plan", stat: "42 hens" },
-              { icon: LineChart, label: "Egg curve", stat: "78%" },
-              { icon: ShieldCheck, label: "Health", stat: "Stable" },
+              { icon: Sprout, label: "Flock plan", stat: "0 hens" },
+              { icon: LineChart, label: "Egg curve", stat: "0%" },
+              { icon: ShieldCheck, label: "Health", stat: "—" },
             ].map((c) => (
               <div
                 key={c.label}
