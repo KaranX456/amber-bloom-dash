@@ -50,27 +50,27 @@ export const Route = createFileRoute("/")({
 });
 
 const productionData = [
-  { month: "Jan", eggs: 220, feedKg: 90 },
-  { month: "Feb", eggs: 260, feedKg: 95 },
-  { month: "Mar", eggs: 300, feedKg: 105 },
-  { month: "Apr", eggs: 340, feedKg: 110 },
-  { month: "May", eggs: 380, feedKg: 118 },
-  { month: "Jun", eggs: 420, feedKg: 122 },
+  { month: "Jan", eggs: 0, feedKg: 0 },
+  { month: "Feb", eggs: 0, feedKg: 0 },
+  { month: "Mar", eggs: 0, feedKg: 0 },
+  { month: "Apr", eggs: 0, feedKg: 0 },
+  { month: "May", eggs: 0, feedKg: 0 },
+  { month: "Jun", eggs: 0, feedKg: 0 },
 ];
 
 const feedMix = [
-  { name: "Maize", value: 42 },
-  { name: "Soya", value: 22 },
-  { name: "Fishmeal", value: 12 },
-  { name: "Premix", value: 8 },
-  { name: "Calcium", value: 16 },
+  { name: "Maize", value: 0 },
+  { name: "Soya", value: 0 },
+  { name: "Fishmeal", value: 0 },
+  { name: "Premix", value: 0 },
+  { name: "Calcium", value: 0 },
 ];
 
 const wardPrices = [
-  { ward: "Juja", layer: 62, broiler: 68 },
-  { ward: "Ruiru", layer: 65, broiler: 71 },
-  { ward: "Thika", layer: 60, broiler: 66 },
-  { ward: "Kiambu", layer: 67, broiler: 73 },
+  { ward: "—", layer: 0, broiler: 0 },
+  { ward: "—", layer: 0, broiler: 0 },
+  { ward: "—", layer: 0, broiler: 0 },
+  { ward: "—", layer: 0, broiler: 0 },
 ];
 
 const chartColors = ["#2f5d3a", "#c98a2a", "#4d8a54", "#d97706", "#7fb069"];
@@ -136,9 +136,9 @@ function Index() {
 
             <dl className="mt-12 grid grid-cols-3 gap-6 max-w-lg">
               {[
-                { k: "4", v: "Live screens" },
-                { k: "3–4", v: "Disease classes" },
-                { k: "1", v: "Ward-level prices" },
+              { k: "0", v: "Live screens" },
+              { k: "0", v: "Disease classes" },
+              { k: "0", v: "Ward-level prices" },
               ].map((s) => (
                 <div key={s.v}>
                   <dt className="font-display text-3xl md:text-4xl font-bold text-accent">
