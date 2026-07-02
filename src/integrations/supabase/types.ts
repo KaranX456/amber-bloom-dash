@@ -14,7 +14,84 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      farmer_profiles: {
+        Row: {
+          age: number | null
+          county: string
+          created_at: string
+          current_flock_size: number | null
+          electricity_access: boolean | null
+          farming_experience_years: number | null
+          full_name: string
+          gender: string | null
+          has_dedicated_coop: boolean | null
+          id: string
+          land_size_acres: number | null
+          monthly_budget_kes: number | null
+          onboarding_completed: boolean
+          phone_number: string | null
+          poultry_type: string | null
+          preferred_language: string | null
+          primary_goal: string | null
+          sub_county: string | null
+          updated_at: string
+          user_id: string
+          village: string | null
+          ward: string
+          water_source: string | null
+        }
+        Insert: {
+          age?: number | null
+          county: string
+          created_at?: string
+          current_flock_size?: number | null
+          electricity_access?: boolean | null
+          farming_experience_years?: number | null
+          full_name: string
+          gender?: string | null
+          has_dedicated_coop?: boolean | null
+          id?: string
+          land_size_acres?: number | null
+          monthly_budget_kes?: number | null
+          onboarding_completed?: boolean
+          phone_number?: string | null
+          poultry_type?: string | null
+          preferred_language?: string | null
+          primary_goal?: string | null
+          sub_county?: string | null
+          updated_at?: string
+          user_id: string
+          village?: string | null
+          ward: string
+          water_source?: string | null
+        }
+        Update: {
+          age?: number | null
+          county?: string
+          created_at?: string
+          current_flock_size?: number | null
+          electricity_access?: boolean | null
+          farming_experience_years?: number | null
+          full_name?: string
+          gender?: string | null
+          has_dedicated_coop?: boolean | null
+          id?: string
+          land_size_acres?: number | null
+          monthly_budget_kes?: number | null
+          onboarding_completed?: boolean
+          phone_number?: string | null
+          poultry_type?: string | null
+          preferred_language?: string | null
+          primary_goal?: string | null
+          sub_county?: string | null
+          updated_at?: string
+          user_id?: string
+          village?: string | null
+          ward?: string
+          water_source?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
