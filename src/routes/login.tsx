@@ -37,12 +37,27 @@ function LoginPage() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
 
-  // If already signed in, bounce to the dashboard.
+  // If already signed in, route to onboarding or planner based on profile.
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/plan" });
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (!data.session) return;
+      await routeAfterAuth(data.session.user.id);
     });
-  }, [navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function routeAfterAuth(userId: string) {
+    const { data: profile } = await supabase
+      .from("farmer_profiles")
+      .select("onboarding_completed")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (profile?.onboarding_completed) {
+      navigate({ to: "/planner" });
+    } else {
+      navigate({ to: "/onboarding" });
+    }
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -54,7 +69,7 @@ function LoginPage() {
             ? await supabase.auth.signUp({
                 email,
                 password,
-                options: { emailRedirectTo: `${window.location.origin}/plan` },
+                options: { emailRedirectTo: `${window.location.origin}/onboarding` },
               })
             : await supabase.auth.signUp({ phone, password });
         if (error) throw error;
@@ -65,13 +80,14 @@ function LoginPage() {
         );
         setIsSignup(false);
       } else {
-        const { error } =
+        const { data: signInData, error } =
           mode === "email"
             ? await supabase.auth.signInWithPassword({ email, password })
             : await supabase.auth.signInWithPassword({ phone, password });
         if (error) throw error;
         toast.success("Welcome back!");
-        navigate({ to: "/plan" });
+        if (signInData.user) await routeAfterAuth(signInData.user.id);
+        else navigate({ to: "/onboarding" });
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Something went wrong";
@@ -93,8 +109,10 @@ function LoginPage() {
         return;
       }
       if (result.redirected) return; // full-page redirect in progress
-      // Session set via popup — go to dashboard
-      navigate({ to: "/plan" });
+      // Session set via popup — route based on profile completeness
+      const { data } = await supabase.auth.getUser();
+      if (data.user) await routeAfterAuth(data.user.id);
+      else navigate({ to: "/onboarding" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Google sign-in failed");
       setGoogleLoading(false);
