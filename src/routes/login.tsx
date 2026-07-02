@@ -176,9 +176,9 @@ function LoginPage() {
 
           <div className="grid grid-cols-3 gap-3 max-w-md">
             {[
-              { icon: Sprout, label: "Flock plan", stat: "42 hens" },
-              { icon: LineChart, label: "Egg curve", stat: "78%" },
-              { icon: ShieldCheck, label: "Health", stat: "Stable" },
+              { icon: Sprout, label: "Flock plan", stat: "0 hens" },
+              { icon: LineChart, label: "Egg curve", stat: "0%" },
+              { icon: ShieldCheck, label: "Health", stat: "—" },
             ].map((c) => (
               <div
                 key={c.label}
@@ -227,22 +227,15 @@ function LoginPage() {
           </p>
 
           {/* Social */}
-          <div className="mt-8 grid grid-cols-2 gap-3">
+          <div className="mt-8">
             <button
               type="button"
               onClick={onGoogle}
               disabled={googleLoading}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-medium hover:bg-secondary transition disabled:opacity-60"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-medium hover:bg-secondary transition disabled:opacity-60"
             >
               <GoogleIcon className="h-4 w-4" />
-              {googleLoading ? "Connecting…" : "Google"}
-            </button>
-            <button
-              type="button"
-              onClick={() => toast.info("M-PESA sign-in is coming soon.")}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-medium hover:bg-secondary transition"
-            >
-              <span className="text-base">🇰🇪</span> M-PESA
+              {googleLoading ? "Connecting…" : "Continue with Google"}
             </button>
           </div>
 

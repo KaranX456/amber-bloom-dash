@@ -31,71 +31,10 @@ type Provider = {
   y: number;
 };
 
-const providers: Provider[] = [
-  {
-    id: "1",
-    name: "Juja Farmers Vet Clinic",
-    kind: "Vet",
-    distance: 0.8,
-    rating: 4.7,
-    phone: "+254 712 345 678",
-    hours: "Mon–Sat · 8am – 6pm",
-    address: "Juja Main Rd, next to Farmers Choice",
-    x: 38,
-    y: 42,
-  },
-  {
-    id: "2",
-    name: "Green Valley Agrovet",
-    kind: "Agrovet",
-    distance: 1.4,
-    rating: 4.5,
-    phone: "+254 720 998 112",
-    hours: "Daily · 7am – 8pm",
-    address: "Gate B, JKUAT Junction",
-    x: 54,
-    y: 30,
-  },
-  {
-    id: "3",
-    name: "Kalimoni Livestock Services",
-    kind: "Vet",
-    distance: 2.1,
-    rating: 4.8,
-    phone: "+254 733 220 145",
-    hours: "Mon–Fri · 9am – 5pm",
-    address: "Kalimoni Shopping Centre",
-    x: 62,
-    y: 58,
-  },
-  {
-    id: "4",
-    name: "Muigai Agrovet Supplies",
-    kind: "Agrovet",
-    distance: 2.6,
-    rating: 4.3,
-    phone: "+254 715 002 341",
-    hours: "Daily · 6:30am – 8pm",
-    address: "Muigai Estate, Ruiru border",
-    x: 24,
-    y: 66,
-  },
-  {
-    id: "5",
-    name: "Thika Poultry Health Hub",
-    kind: "Vet",
-    distance: 4.2,
-    rating: 4.9,
-    phone: "+254 700 456 789",
-    hours: "Mon–Sat · 8am – 7pm",
-    address: "Thika Rd, next to Blue Post",
-    x: 78,
-    y: 20,
-  },
-];
+const providers: Provider[] = [];
 
 function Vets() {
-  const [active, setActive] = useState("1");
+  const [active, setActive] = useState<string | null>(null);
   const [filter, setFilter] = useState<"All" | "Vet" | "Agrovet">("All");
   const [q, setQ] = useState("");
 
@@ -117,7 +56,7 @@ function Vets() {
           Vets & agrovets near you.
         </h1>
         <p className="mt-4 text-muted-foreground max-w-xl">
-          Sorted by distance from Juja Ward. Ratings and hours pulled live from Google Places.
+          Sorted by distance from your ward. Ratings and hours pulled live from Google Places.
         </p>
       </section>
 
@@ -151,6 +90,11 @@ function Vets() {
           </div>
 
           <div className="space-y-3 max-h-[560px] overflow-y-auto pr-1">
+            {list.length === 0 && (
+              <div className="rounded-2xl bg-card p-6 text-sm text-muted-foreground ring-1 ring-border/60 text-center">
+                No vets or agrovets loaded yet.
+              </div>
+            )}
             {list.map((p) => {
               const on = active === p.id;
               return (
@@ -260,7 +204,7 @@ function Vets() {
                 </span>
               </div>
               <div className="mt-1 whitespace-nowrap text-[10px] font-semibold text-primary-deep bg-white/80 rounded px-1.5 py-0.5">
-                You · Juja
+                You
               </div>
             </div>
 
@@ -299,7 +243,14 @@ function Vets() {
 
           {/* Details card */}
           {(() => {
-            const p = providers.find((x) => x.id === active)!;
+            const p = providers.find((x) => x.id === active);
+            if (!p) {
+              return (
+                <div className="rounded-3xl bg-card p-6 ring-1 ring-border/60 shadow-sm text-sm text-muted-foreground text-center">
+                  Select a provider to see details.
+                </div>
+              );
+            }
             return (
               <motion.div
                 key={p.id}

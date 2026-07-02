@@ -49,14 +49,14 @@ const symptomsList = [
 ];
 
 const predictions = [
-  { name: "Newcastle", value: 71, tone: "#c98a2a" },
-  { name: "Coccidiosis", value: 18, tone: "#2f5d3a" },
-  { name: "Fowl pox", value: 8, tone: "#7fb069" },
-  { name: "Healthy", value: 3, tone: "#a3a695" },
+  { name: "Newcastle", value: 0, tone: "#c98a2a" },
+  { name: "Coccidiosis", value: 0, tone: "#2f5d3a" },
+  { name: "Fowl pox", value: 0, tone: "#7fb069" },
+  { name: "Healthy", value: 0, tone: "#a3a695" },
 ];
 
 function Disease() {
-  const [selected, setSelected] = useState<string[]>(["Green droppings", "Loss of appetite"]);
+  const [selected, setSelected] = useState<string[]>([]);
   const [file, setFile] = useState<string | null>(null);
 
   const toggle = (s: string) =>
@@ -169,11 +169,11 @@ function Disease() {
               <div className="absolute inset-0 bg-gradient-to-t from-primary-deep/90 via-primary-deep/40 to-transparent" />
               <div className="absolute bottom-0 p-6 text-primary-foreground">
                 <span className="inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-xs font-semibold text-accent-foreground">
-                  <AlertTriangle className="h-3.5 w-3.5" /> High confidence
+                  <AlertTriangle className="h-3.5 w-3.5" /> Awaiting input
                 </span>
-                <h3 className="mt-3 font-display text-3xl font-bold">Newcastle disease</h3>
+                <h3 className="mt-3 font-display text-3xl font-bold">No result yet</h3>
                 <p className="text-sm text-primary-foreground/85 mt-1">
-                  Confidence 71% · symptom match strong
+                  Upload a photo or select symptoms, then run triage.
                 </p>
               </div>
             </div>
@@ -209,9 +209,8 @@ function Disease() {
                 <p className="flex items-start gap-2">
                   <Sparkles className="h-4 w-4 text-accent shrink-0 mt-0.5" />
                   <span>
-                    <strong>Recommended next step:</strong> Isolate the bird immediately, avoid
-                    contact with the flock, and call a vet within 24 hours. Vaccination for the
-                    rest of the flock is advised.
+                    <strong>Recommended next step:</strong> Run triage to see guidance
+                    tailored to your bird.
                   </span>
                 </p>
               </div>
@@ -226,7 +225,7 @@ function Disease() {
               <div>
                 <div className="text-xs uppercase tracking-widest text-accent">Get help now</div>
                 <div className="font-display text-xl font-semibold mt-1">
-                  See vets near Juja Ward
+                  See vets near your ward
                 </div>
               </div>
               <ArrowRight className="h-5 w-5 text-accent" />
