@@ -44,24 +44,24 @@ export const Route = createFileRoute("/plan")({
 });
 
 const feed = [
-  { name: "Maize", kg: 18, cost: 1080 },
-  { name: "Soya", kg: 8, cost: 960 },
-  { name: "Fishmeal", kg: 3, cost: 720 },
-  { name: "Calcium", kg: 5, cost: 250 },
-  { name: "Premix", kg: 1, cost: 380 },
+  { name: "Maize", kg: 0, cost: 0 },
+  { name: "Soya", kg: 0, cost: 0 },
+  { name: "Fishmeal", kg: 0, cost: 0 },
+  { name: "Calcium", kg: 0, cost: 0 },
+  { name: "Premix", kg: 0, cost: 0 },
 ];
 
 const production = [
   { week: "W1", eggs: 0 },
-  { week: "W4", eggs: 5 },
-  { week: "W8", eggs: 22 },
-  { week: "W12", eggs: 34 },
-  { week: "W16", eggs: 36 },
-  { week: "W20", eggs: 34 },
-  { week: "W24", eggs: 32 },
+  { week: "W4", eggs: 0 },
+  { week: "W8", eggs: 0 },
+  { week: "W12", eggs: 0 },
+  { week: "W16", eggs: 0 },
+  { week: "W20", eggs: 0 },
+  { week: "W24", eggs: 0 },
 ];
 
-const feasibility = [{ name: "Feasibility", value: 82, fill: "#c98a2a" }];
+const feasibility = [{ name: "Feasibility", value: 0, fill: "#c98a2a" }];
 
 const chartColors = ["#2f5d3a", "#c98a2a", "#4d8a54", "#d97706", "#7fb069"];
 
@@ -79,11 +79,11 @@ function Plan() {
               Step 2 · Your flock plan
             </span>
             <h1 className="mt-3 font-display text-4xl md:text-5xl font-bold text-primary-deep">
-              40 layers, feasible in Juja.
+              Your flock plan
             </h1>
             <p className="mt-4 text-muted-foreground max-w-xl">
-              Based on 12 m² of space, KES 8,000/month, and Juja ward density limits. Every
-              number below is drawn from real agrovet prices and county bylaws.
+              Run the planner to generate a costed feed plan, bylaw check and expected
+              production for your ward.
             </p>
           </div>
           <button className="inline-flex items-center gap-2 rounded-full bg-secondary px-5 py-2.5 text-sm font-medium text-secondary-foreground hover:bg-primary hover:text-primary-foreground transition">
@@ -95,10 +95,10 @@ function Plan() {
       {/* KPI row */}
       <section className="mx-auto max-w-7xl px-6 mt-10 grid gap-4 md:grid-cols-4">
         {[
-          { icon: Egg, k: "40", v: "Recommended birds", tone: "primary" },
-          { icon: Building2, k: "12 m²", v: "Space used · 100%", tone: "primary" },
-          { icon: Wheat, k: "KES 3,390", v: "Weekly feed cost", tone: "accent" },
-          { icon: ShieldCheck, k: "Compliant", v: "Juja ward bylaw", tone: "primary" },
+          { icon: Egg, k: "0", v: "Recommended birds", tone: "primary" },
+          { icon: Building2, k: "0 m²", v: "Space used", tone: "primary" },
+          { icon: Wheat, k: "KES 0", v: "Weekly feed cost", tone: "accent" },
+          { icon: ShieldCheck, k: "—", v: "Ward bylaw", tone: "primary" },
         ].map((k, i) => (
           <motion.div
             key={k.v}
@@ -144,12 +144,12 @@ function Plan() {
             </ResponsiveContainer>
           </div>
           <div className="-mt-40 text-center pointer-events-none">
-            <div className="font-display text-5xl font-bold text-primary-deep">82</div>
+            <div className="font-display text-5xl font-bold text-primary-deep">0</div>
             <div className="text-xs text-muted-foreground uppercase tracking-widest">/ 100</div>
           </div>
           <div className="mt-24 rounded-xl bg-accent-soft p-3 text-xs text-accent-foreground/90">
             <Sparkles className="inline h-3.5 w-3.5 text-accent mr-1" />
-            Add 2 m² of run to reach 90.
+            Run the planner to generate a score.
           </div>
         </div>
 
@@ -159,11 +159,11 @@ function Plan() {
             <div>
               <h3 className="font-display text-lg font-semibold">Least-cost feed plan</h3>
               <p className="text-xs text-muted-foreground">
-                Weekly · 35 kg total · KES {totalCost.toLocaleString()}
+                Weekly · 0 kg total · KES {totalCost.toLocaleString()}
               </p>
             </div>
             <span className="rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground">
-              Juja agrovet prices · today
+              Awaiting agrovet prices
             </span>
           </div>
           <div className="mt-4 h-56">
@@ -235,10 +235,10 @@ function Plan() {
               <h3 className="font-display text-lg font-semibold">Bylaw status</h3>
             </div>
             <ul className="mt-4 space-y-2 text-sm text-primary-foreground/85">
-              <li className="flex justify-between"><span>Max birds/plot</span><span className="text-accent font-semibold">50</span></li>
-              <li className="flex justify-between"><span>Setback from neighbour</span><span className="text-accent font-semibold">2 m</span></li>
-              <li className="flex justify-between"><span>Noise permit</span><span className="text-accent font-semibold">Not needed</span></li>
-              <li className="flex justify-between"><span>Waste plan</span><span className="text-accent font-semibold">Required</span></li>
+              <li className="flex justify-between"><span>Max birds/plot</span><span className="text-accent font-semibold">—</span></li>
+              <li className="flex justify-between"><span>Setback from neighbour</span><span className="text-accent font-semibold">—</span></li>
+              <li className="flex justify-between"><span>Noise permit</span><span className="text-accent font-semibold">—</span></li>
+              <li className="flex justify-between"><span>Waste plan</span><span className="text-accent font-semibold">—</span></li>
             </ul>
           </div>
         </div>
@@ -247,7 +247,7 @@ function Plan() {
         <div className="rounded-2xl bg-card p-6 ring-1 ring-border/60 shadow-sm lg:col-span-3">
           <div className="flex items-center justify-between">
             <h3 className="font-display text-lg font-semibold">Weekly feed breakdown</h3>
-            <span className="text-xs text-muted-foreground">Prices seeded from Juja agrovets</span>
+            <span className="text-xs text-muted-foreground">Awaiting agrovet prices</span>
           </div>
           <div className="mt-4 overflow-x-auto">
             <table className="w-full text-sm">
@@ -264,7 +264,7 @@ function Plan() {
                   <tr key={f.name} className="border-b border-border/60 last:border-0">
                     <td className="py-3 font-medium">{f.name}</td>
                     <td className="py-3">{f.kg} kg</td>
-                    <td className="py-3">KES {(f.cost / f.kg).toFixed(0)}</td>
+                    <td className="py-3">KES {f.kg ? (f.cost / f.kg).toFixed(0) : 0}</td>
                     <td className="py-3 text-right font-semibold text-primary">
                       KES {f.cost.toLocaleString()}
                     </td>
