@@ -47,26 +47,6 @@ export const Route = createFileRoute("/plan")({
   component: Plan,
 });
 
-const feed = [
-  { name: "Maize", kg: 0, cost: 0 },
-  { name: "Soya", kg: 0, cost: 0 },
-  { name: "Fishmeal", kg: 0, cost: 0 },
-  { name: "Calcium", kg: 0, cost: 0 },
-  { name: "Premix", kg: 0, cost: 0 },
-];
-
-const production = [
-  { week: "W1", eggs: 0 },
-  { week: "W4", eggs: 0 },
-  { week: "W8", eggs: 0 },
-  { week: "W12", eggs: 0 },
-  { week: "W16", eggs: 0 },
-  { week: "W20", eggs: 0 },
-  { week: "W24", eggs: 0 },
-];
-
-const feasibility = [{ name: "Feasibility", value: 0, fill: "#c98a2a" }];
-
 const chartColors = ["#2f5d3a", "#c98a2a", "#4d8a54", "#d97706", "#7fb069"];
 
 function Plan() {
