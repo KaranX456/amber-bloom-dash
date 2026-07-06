@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VetsRouteImport } from './routes/vets'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PlannerRouteImport } from './routes/planner'
 import { Route as PlanRouteImport } from './routes/plan'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
@@ -20,6 +21,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const VetsRoute = VetsRouteImport.update({
   id: '/vets',
   path: '/vets',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlannerRoute = PlannerRouteImport.update({
@@ -60,6 +66,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRoute
   '/plan': typeof PlanRoute
   '/planner': typeof PlannerRoute
+  '/profile': typeof ProfileRoute
   '/vets': typeof VetsRoute
 }
 export interface FileRoutesByTo {
@@ -69,6 +76,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRoute
   '/plan': typeof PlanRoute
   '/planner': typeof PlannerRoute
+  '/profile': typeof ProfileRoute
   '/vets': typeof VetsRoute
 }
 export interface FileRoutesById {
@@ -79,6 +87,7 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRoute
   '/plan': typeof PlanRoute
   '/planner': typeof PlannerRoute
+  '/profile': typeof ProfileRoute
   '/vets': typeof VetsRoute
 }
 export interface FileRouteTypes {
@@ -90,6 +99,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/plan'
     | '/planner'
+    | '/profile'
     | '/vets'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -99,6 +109,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/plan'
     | '/planner'
+    | '/profile'
     | '/vets'
   id:
     | '__root__'
@@ -108,6 +119,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/plan'
     | '/planner'
+    | '/profile'
     | '/vets'
   fileRoutesById: FileRoutesById
 }
@@ -118,6 +130,7 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRoute
   PlanRoute: typeof PlanRoute
   PlannerRoute: typeof PlannerRoute
+  ProfileRoute: typeof ProfileRoute
   VetsRoute: typeof VetsRoute
 }
 
@@ -128,6 +141,13 @@ declare module '@tanstack/react-router' {
       path: '/vets'
       fullPath: '/vets'
       preLoaderRoute: typeof VetsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/planner': {
@@ -182,6 +202,7 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRoute,
   PlanRoute: PlanRoute,
   PlannerRoute: PlannerRoute,
+  ProfileRoute: ProfileRoute,
   VetsRoute: VetsRoute,
 }
 export const routeTree = rootRouteImport
