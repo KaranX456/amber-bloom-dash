@@ -181,7 +181,7 @@ function Plan() {
               <RadialBarChart
                 innerRadius="70%"
                 outerRadius="100%"
-                data={feasibility}
+                data={feasibilityData}
                 startAngle={220}
                 endAngle={-40}
               >
