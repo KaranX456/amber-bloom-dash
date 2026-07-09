@@ -34,6 +34,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { RequireAuth } from "@/components/RequireAuth";
 
 export const Route = createFileRoute("/plan")({
   head: () => ({

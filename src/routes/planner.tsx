@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { SiteNav, SiteFooter } from "@/components/SiteNav";
 import coopImg from "@/assets/coop.jpg";
+import { RequireAuth } from "@/components/RequireAuth";
 
 export const Route = createFileRoute("/planner")({
   head: () => ({
@@ -24,7 +25,11 @@ export const Route = createFileRoute("/planner")({
       },
     ],
   }),
-  component: Planner,
+  component: () => (
+    <RequireAuth>
+      <Planner />
+    </RequireAuth>
+  ),
 });
 
 const wards = ["Juja", "Ruiru", "Thika Town", "Kiambu Town", "Kikuyu", "Limuru"];
