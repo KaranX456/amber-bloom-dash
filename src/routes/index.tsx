@@ -1,14 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { useAuth } from "@/hooks/use-auth";
 import { motion } from "framer-motion";
-import {
-  ArrowRight,
-  Sparkles,
-  Stethoscope,
-  MapPin,
-  Calculator,
-  ShieldCheck,
-  TrendingUp,
-} from "lucide-react";
+import { ArrowRight, Sparkles, TrendingUp } from "lucide-react";
 import {
   Area,
   AreaChart,
@@ -76,6 +70,17 @@ const wardPrices = [
 const chartColors = ["#2f5d3a", "#c98a2a", "#4d8a54", "#d97706", "#7fb069"];
 
 function Index() {
+  const { isAuthenticated, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && isAuthenticated) {
+      navigate({ to: "/planner", replace: true });
+    }
+  }, [loading, isAuthenticated, navigate]);
+
+  if (loading || isAuthenticated) return null;
+
   return (
     <div className="min-h-screen">
       <SiteNav />
@@ -121,16 +126,10 @@ function Index() {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                to="/planner"
+                to="/login"
                 className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-[var(--shadow-amber)] hover:brightness-105 transition"
               >
-                Plan my flock <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                to="/disease"
-                className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-6 py-3 text-sm font-semibold backdrop-blur hover:bg-white/20 transition"
-              >
-                Try disease check
+                Sign in to get started <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
 
@@ -151,57 +150,6 @@ function Index() {
               ))}
             </dl>
           </motion.div>
-        </div>
-      </section>
-
-      {/* FEATURE CARDS */}
-      <section className="mx-auto max-w-7xl px-6 -mt-14 relative z-10">
-        <div className="grid gap-4 md:grid-cols-4">
-          {[
-            {
-              icon: Calculator,
-              title: "Flock Planner",
-              body: "Space, budget, ward and species in. Feasible flock size out.",
-              to: "/planner",
-            },
-            {
-              icon: ShieldCheck,
-              title: "Bylaw check",
-              body: "County & ward rules baked into every recommendation.",
-              to: "/plan",
-            },
-            {
-              icon: Stethoscope,
-              title: "Disease triage",
-              body: "Symptoms or a photo → category and honest confidence.",
-              to: "/disease",
-            },
-            {
-              icon: MapPin,
-              title: "Vet finder",
-              body: "Nearest vet or agrovet on a map, with live pricing.",
-              to: "/vets",
-            },
-          ].map((f, i) => (
-            <motion.div
-              key={f.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08, duration: 0.5 }}
-            >
-              <Link
-                to={f.to}
-                className="group block rounded-2xl bg-card p-6 shadow-sm ring-1 ring-border/60 hover:shadow-[var(--shadow-elegant)] hover:-translate-y-1 transition-all"
-              >
-                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-secondary text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                  <f.icon className="h-5 w-5" />
-                </span>
-                <h3 className="mt-4 font-display text-lg font-semibold">{f.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{f.body}</p>
-              </Link>
-            </motion.div>
-          ))}
         </div>
       </section>
 
@@ -389,10 +337,10 @@ function Index() {
               backed by your ward's bylaws and today's agrovet prices.
             </p>
             <Link
-              to="/planner"
+              to="/login"
               className="mt-8 inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-[var(--shadow-amber)] hover:brightness-105 transition"
             >
-              Open the planner <ArrowRight className="h-4 w-4" />
+              Sign in to get started <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
