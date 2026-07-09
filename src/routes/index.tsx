@@ -2,15 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { motion } from "framer-motion";
-import {
-  ArrowRight,
-  Sparkles,
-  Stethoscope,
-  MapPin,
-  Calculator,
-  ShieldCheck,
-  TrendingUp,
-} from "lucide-react";
+import { ArrowRight, Sparkles, TrendingUp } from "lucide-react";
 import {
   Area,
   AreaChart,
@@ -134,16 +126,10 @@ function Index() {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                to="/planner"
+                to="/login"
                 className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-[var(--shadow-amber)] hover:brightness-105 transition"
               >
-                Plan my flock <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                to="/disease"
-                className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-6 py-3 text-sm font-semibold backdrop-blur hover:bg-white/20 transition"
-              >
-                Try disease check
+                Sign in to get started <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
 
