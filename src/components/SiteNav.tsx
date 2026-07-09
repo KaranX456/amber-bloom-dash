@@ -5,8 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 
-const links = [
-  { to: "/", label: "Home" },
+const publicLinks = [{ to: "/", label: "Home" }] as const;
+const authedLinks = [
   { to: "/planner", label: "Planner" },
   { to: "/plan", label: "Flock Plan" },
   { to: "/disease", label: "Disease Check" },
@@ -18,6 +18,7 @@ export function SiteNav() {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
+  const links = isAuthenticated ? authedLinks : publicLinks;
 
   async function signOut() {
     await supabase.auth.signOut();
