@@ -337,10 +337,10 @@ function Index() {
               backed by your ward's bylaws and today's agrovet prices.
             </p>
             <Link
-              to="/planner"
+              to="/login"
               className="mt-8 inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-[var(--shadow-amber)] hover:brightness-105 transition"
             >
-              Open the planner <ArrowRight className="h-4 w-4" />
+              Sign in to get started <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
