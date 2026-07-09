@@ -1,4 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { useAuth } from "@/hooks/use-auth";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -76,6 +78,17 @@ const wardPrices = [
 const chartColors = ["#2f5d3a", "#c98a2a", "#4d8a54", "#d97706", "#7fb069"];
 
 function Index() {
+  const { isAuthenticated, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && isAuthenticated) {
+      navigate({ to: "/planner", replace: true });
+    }
+  }, [loading, isAuthenticated, navigate]);
+
+  if (loading || isAuthenticated) return null;
+
   return (
     <div className="min-h-screen">
       <SiteNav />
