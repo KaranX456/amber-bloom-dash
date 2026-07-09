@@ -32,6 +32,8 @@ import chicksImg from "@/assets/chicks.jpg";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 export const Route = createFileRoute("/plan")({
   head: () => ({
@@ -112,6 +114,48 @@ function Plan() {
   const feasibilityData = [{ name: "Feasibility", value: feasibilityScore, fill: "#c98a2a" }];
   const hasPlan = profile?.onboarding_completed && birds > 0;
 
+  const downloadPdf = () => {
+    const doc = new jsPDF();
+    const name = profile?.full_name ?? "Farmer";
+    doc.setFontSize(18);
+    doc.text("PoultryFit Kenya — Flock Plan", 14, 20);
+    doc.setFontSize(11);
+    doc.text(`Prepared for: ${name}`, 14, 30);
+    doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 37);
+
+    autoTable(doc, {
+      startY: 45,
+      head: [["Metric", "Value"]],
+      body: [
+        ["Ward", ward],
+        ["County", profile?.county ?? "—"],
+        ["Poultry type", profile?.poultry_type ?? "—"],
+        ["Current flock size", String(birds)],
+        ["Space needed", `${spaceM2} m²`],
+        ["Weekly feed budget", `KES ${weeklyBudget.toLocaleString()}`],
+        ["Monthly budget", `KES ${(profile?.monthly_budget_kes ?? 0).toLocaleString()}`],
+        ["Dedicated coop", profile?.has_dedicated_coop ? "Yes" : "No"],
+        ["Water source", profile?.water_source ?? "—"],
+        ["Feasibility score", `${feasibilityScore} / 100`],
+      ],
+    });
+
+    autoTable(doc, {
+      head: [["Ingredient", "Quantity (kg)", "KES / kg", "Cost (KES)"]],
+      body: [
+        ...feedData.map((f) => [f.name, String(f.kg), String(pricePerKg[f.name]), f.cost.toLocaleString()]),
+        ["Total weekly", String(totalKg), "", totalCost.toLocaleString()],
+      ],
+    });
+
+    autoTable(doc, {
+      head: [["Week", "Expected eggs / day"]],
+      body: productionData.map((p) => [p.week, String(p.eggs)]),
+    });
+
+    doc.save(`flock-plan-${name.replace(/\s+/g, "-").toLowerCase()}.pdf`);
+  };
+
   return (
     <div className="min-h-screen">
       <SiteNav />
@@ -132,7 +176,10 @@ function Plan() {
                 : "Complete onboarding to generate a costed feed plan, bylaw check and expected production for your ward."}
             </p>
           </div>
-          <button className="inline-flex items-center gap-2 rounded-full bg-secondary px-5 py-2.5 text-sm font-medium text-secondary-foreground hover:bg-primary hover:text-primary-foreground transition">
+          <button
+            onClick={downloadPdf}
+            className="inline-flex items-center gap-2 rounded-full bg-secondary px-5 py-2.5 text-sm font-medium text-secondary-foreground hover:bg-primary hover:text-primary-foreground transition"
+          >
             <Download className="h-4 w-4" /> Download plan (PDF)
           </button>
         </div>
