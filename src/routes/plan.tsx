@@ -34,6 +34,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { RequireAuth } from "@/components/RequireAuth";
 
 export const Route = createFileRoute("/plan")({
   head: () => ({
@@ -46,7 +47,11 @@ export const Route = createFileRoute("/plan")({
       },
     ],
   }),
-  component: Plan,
+  component: () => (
+    <RequireAuth>
+      <Plan />
+    </RequireAuth>
+  ),
 });
 
 const chartColors = ["#2f5d3a", "#c98a2a", "#4d8a54", "#d97706", "#7fb069"];
