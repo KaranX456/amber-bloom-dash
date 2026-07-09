@@ -153,57 +153,6 @@ function Index() {
         </div>
       </section>
 
-      {/* FEATURE CARDS */}
-      <section className="mx-auto max-w-7xl px-6 -mt-14 relative z-10">
-        <div className="grid gap-4 md:grid-cols-4">
-          {[
-            {
-              icon: Calculator,
-              title: "Flock Planner",
-              body: "Space, budget, ward and species in. Feasible flock size out.",
-              to: "/planner",
-            },
-            {
-              icon: ShieldCheck,
-              title: "Bylaw check",
-              body: "County & ward rules baked into every recommendation.",
-              to: "/plan",
-            },
-            {
-              icon: Stethoscope,
-              title: "Disease triage",
-              body: "Symptoms or a photo → category and honest confidence.",
-              to: "/disease",
-            },
-            {
-              icon: MapPin,
-              title: "Vet finder",
-              body: "Nearest vet or agrovet on a map, with live pricing.",
-              to: "/vets",
-            },
-          ].map((f, i) => (
-            <motion.div
-              key={f.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08, duration: 0.5 }}
-            >
-              <Link
-                to={f.to}
-                className="group block rounded-2xl bg-card p-6 shadow-sm ring-1 ring-border/60 hover:shadow-[var(--shadow-elegant)] hover:-translate-y-1 transition-all"
-              >
-                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-secondary text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                  <f.icon className="h-5 w-5" />
-                </span>
-                <h3 className="mt-4 font-display text-lg font-semibold">{f.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{f.body}</p>
-              </Link>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
       {/* DASHBOARD PREVIEW */}
       <section className="mx-auto max-w-7xl px-6 mt-24">
         <div className="flex items-end justify-between gap-6 flex-wrap">
