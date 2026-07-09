@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { SiteNav, SiteFooter } from "@/components/SiteNav";
 import { supabase } from "@/integrations/supabase/client";
+import { RequireAuth } from "@/components/RequireAuth";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -25,7 +26,11 @@ export const Route = createFileRoute("/profile")({
       },
     ],
   }),
-  component: ProfilePage,
+  component: () => (
+    <RequireAuth>
+      <ProfilePage />
+    </RequireAuth>
+  ),
 });
 
 type FormState = {

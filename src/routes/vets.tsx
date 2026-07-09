@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { Phone, MapPin, Star, Clock, Search, Navigation } from "lucide-react";
 import { SiteNav, SiteFooter } from "@/components/SiteNav";
+import { RequireAuth } from "@/components/RequireAuth";
 
 export const Route = createFileRoute("/vets")({
   head: () => ({
@@ -15,7 +16,11 @@ export const Route = createFileRoute("/vets")({
       },
     ],
   }),
-  component: Vets,
+  component: () => (
+    <RequireAuth>
+      <Vets />
+    </RequireAuth>
+  ),
 });
 
 type Provider = {

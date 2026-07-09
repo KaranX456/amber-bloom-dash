@@ -47,7 +47,11 @@ export const Route = createFileRoute("/plan")({
       },
     ],
   }),
-  component: Plan,
+  component: () => (
+    <RequireAuth>
+      <Plan />
+    </RequireAuth>
+  ),
 });
 
 const chartColors = ["#2f5d3a", "#c98a2a", "#4d8a54", "#d97706", "#7fb069"];

@@ -22,6 +22,7 @@ import {
 } from "recharts";
 import { SiteNav, SiteFooter } from "@/components/SiteNav";
 import roosterImg from "@/assets/rooster.jpg";
+import { RequireAuth } from "@/components/RequireAuth";
 
 export const Route = createFileRoute("/disease")({
   head: () => ({
@@ -34,7 +35,11 @@ export const Route = createFileRoute("/disease")({
       },
     ],
   }),
-  component: Disease,
+  component: () => (
+    <RequireAuth>
+      <Disease />
+    </RequireAuth>
+  ),
 });
 
 const symptomsList = [

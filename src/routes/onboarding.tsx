@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import chicksImg from "@/assets/chicks.jpg";
+import { RequireAuth } from "@/components/RequireAuth";
 
 export const Route = createFileRoute("/onboarding")({
   head: () => ({
@@ -27,7 +28,11 @@ export const Route = createFileRoute("/onboarding")({
       },
     ],
   }),
-  component: OnboardingPage,
+  component: () => (
+    <RequireAuth>
+      <OnboardingPage />
+    </RequireAuth>
+  ),
 });
 
 type FormState = {
