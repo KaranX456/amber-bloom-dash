@@ -39,24 +39,26 @@ export function SiteNav() {
             PoultryFit<span className="text-accent">.</span>
           </span>
         </Link>
-        <nav className="hidden md:flex items-center gap-1">
-          {links.map((l) => {
-            const active = path === l.to;
-            return (
-              <Link
-                key={l.to}
-                to={l.to}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                  active
-                    ? "bg-primary text-primary-foreground"
-                    : "text-foreground/70 hover:text-primary hover:bg-secondary"
-                }`}
-              >
-                {l.label}
-              </Link>
-            );
-          })}
-        </nav>
+        {isAuthenticated && (
+          <nav className="hidden md:flex items-center gap-1">
+            {links.map((l) => {
+              const active = path === l.to;
+              return (
+                <Link
+                  key={l.to}
+                  to={l.to}
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                    active
+                      ? "bg-primary text-primary-foreground"
+                      : "text-foreground/70 hover:text-primary hover:bg-secondary"
+                  }`}
+                >
+                  {l.label}
+                </Link>
+              );
+            })}
+          </nav>
+        )}
         <div className="hidden md:flex items-center gap-2">
           {isAuthenticated ? (
             <>
@@ -87,7 +89,7 @@ export function SiteNav() {
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
-      {open && (
+      {open && isAuthenticated && (
         <div className="md:hidden border-t border-border bg-background">
           <div className="mx-auto max-w-7xl px-4 py-3 flex flex-col gap-1">
             {links.map((l) => (
