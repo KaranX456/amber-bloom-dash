@@ -89,7 +89,7 @@ export function SiteNav() {
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
-      {open && (
+      {open && isAuthenticated && (
         <div className="md:hidden border-t border-border bg-background">
           <div className="mx-auto max-w-7xl px-4 py-3 flex flex-col gap-1">
             {links.map((l) => (
