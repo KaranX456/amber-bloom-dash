@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      diagnosis_audit_log: {
+        Row: {
+          confidence: number | null
+          created_at: string
+          feedback_helpful: boolean | null
+          feedback_note: string | null
+          has_photo: boolean
+          id: string
+          symptoms: string[]
+          top_prediction: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          confidence?: number | null
+          created_at?: string
+          feedback_helpful?: boolean | null
+          feedback_note?: string | null
+          has_photo?: boolean
+          id?: string
+          symptoms?: string[]
+          top_prediction?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          confidence?: number | null
+          created_at?: string
+          feedback_helpful?: boolean | null
+          feedback_note?: string | null
+          has_photo?: boolean
+          id?: string
+          symptoms?: string[]
+          top_prediction?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       farmer_profiles: {
         Row: {
           age: number | null
