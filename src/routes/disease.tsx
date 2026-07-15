@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Camera,
   Upload,
@@ -9,6 +9,10 @@ import {
   CheckCircle2,
   ArrowRight,
   Sparkles,
+  WifiOff,
+  ThumbsUp,
+  ThumbsDown,
+  RefreshCw,
 } from "lucide-react";
 import {
   Bar,
@@ -23,6 +27,11 @@ import {
 import { SiteNav, SiteFooter } from "@/components/SiteNav";
 import roosterImg from "@/assets/rooster.jpg";
 import { RequireAuth } from "@/components/RequireAuth";
+import { useServerFn } from "@tanstack/react-start";
+import { logDiagnosis, submitDiagnosisFeedback } from "@/lib/diagnosis.functions";
+import { useOnlineStatus } from "@/hooks/use-online-status";
+import { enqueueTriage, listPending, syncQueue } from "@/lib/triage-queue";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/disease")({
   head: () => ({
