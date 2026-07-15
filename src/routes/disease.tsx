@@ -62,12 +62,41 @@ const symptomsList = [
   "Lameness",
 ];
 
-const predictions = [
-  { name: "Newcastle", value: 0, tone: "#c98a2a" },
-  { name: "Coccidiosis", value: 0, tone: "#2f5d3a" },
-  { name: "Fowl pox", value: 0, tone: "#7fb069" },
-  { name: "Healthy", value: 0, tone: "#a3a695" },
+const CLASSES = [
+  { name: "Newcastle", tone: "#c98a2a" },
+  { name: "Coccidiosis", tone: "#2f5d3a" },
+  { name: "Fowl pox", tone: "#7fb069" },
+  { name: "Healthy", tone: "#a3a695" },
 ];
+
+type Prediction = { name: string; value: number; tone: string };
+
+// Deterministic offline scoring — gives farmer immediate best-guess without network.
+function scoreLocally(symptoms: string[], hasPhoto: boolean): Prediction[] {
+  const weights: Record<string, Record<string, number>> = {
+    "Sneezing / coughing": { Newcastle: 30, "Fowl pox": 10 },
+    "Watery eyes": { Newcastle: 20, "Fowl pox": 15 },
+    "Green droppings": { Newcastle: 35, Coccidiosis: 10 },
+    "Loss of appetite": { Newcastle: 10, Coccidiosis: 20, "Fowl pox": 5 },
+    "Ruffled feathers": { Coccidiosis: 20, Newcastle: 10 },
+    "Sudden death": { Newcastle: 40 },
+    "Swollen head": { "Fowl pox": 35 },
+    Lameness: { Coccidiosis: 15 },
+  };
+  const scores: Record<string, number> = { Newcastle: 0, Coccidiosis: 0, "Fowl pox": 0, Healthy: 10 };
+  for (const s of symptoms) {
+    const w = weights[s];
+    if (!w) continue;
+    for (const k of Object.keys(w)) scores[k] += w[k];
+  }
+  if (hasPhoto) {
+    const top = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
+    scores[top] += 10;
+  }
+  if (symptoms.length === 0 && !hasPhoto) return CLASSES.map((c) => ({ ...c, value: 0 }));
+  const total = Object.values(scores).reduce((a, b) => a + b, 0) || 1;
+  return CLASSES.map((c) => ({ ...c, value: Math.round((scores[c.name] / total) * 100) }));
+}
 
 function Disease() {
   const [selected, setSelected] = useState<string[]>([]);
