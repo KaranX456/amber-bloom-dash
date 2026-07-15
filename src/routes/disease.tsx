@@ -101,15 +101,130 @@ function scoreLocally(symptoms: string[], hasPhoto: boolean): Prediction[] {
 function Disease() {
   const [selected, setSelected] = useState<string[]>([]);
   const [file, setFile] = useState<string | null>(null);
+  const [result, setResult] = useState<Prediction[] | null>(null);
+  const [logId, setLogId] = useState<string | null>(null);
+  const [feedbackDone, setFeedbackDone] = useState(false);
+  const [feedbackNote, setFeedbackNote] = useState("");
+  const [pendingCount, setPendingCount] = useState(0);
+  const online = useOnlineStatus();
+  const logDiagnosisFn = useServerFn(logDiagnosis);
+  const submitFeedbackFn = useServerFn(submitDiagnosisFeedback);
+
+  useEffect(() => {
+    setPendingCount(listPending().length);
+  }, []);
+
+  useEffect(() => {
+    if (!online) return;
+    if (listPending().length === 0) return;
+    syncQueue().then(({ synced, failed }) => {
+      setPendingCount(listPending().length);
+      if (synced > 0) toast.success(`Synced ${synced} offline triage ${synced === 1 ? "entry" : "entries"}`);
+      if (failed > 0) toast.error(`${failed} entries failed to sync`);
+    });
+  }, [online]);
 
   const toggle = (s: string) =>
     setSelected((cur) =>
       cur.includes(s) ? cur.filter((x) => x !== s) : [...cur, s]
     );
 
+  const runTriage = async () => {
+    if (selected.length === 0 && !file) {
+      toast.error("Add at least one symptom or a photo");
+      return;
+    }
+    const preds = scoreLocally(selected, !!file);
+    setResult(preds);
+    setFeedbackDone(false);
+    setLogId(null);
+    const top = [...preds].sort((a, b) => b.value - a.value)[0];
+
+    if (!online) {
+      enqueueTriage({
+        symptoms: selected,
+        photoDataUrl: file,
+        topPrediction: top.name,
+        confidence: top.value,
+      });
+      setPendingCount(listPending().length);
+      toast.info("Offline — result cached, will sync when reconnected");
+      return;
+    }
+
+    try {
+      const res = await logDiagnosisFn({
+        data: {
+          symptoms: selected,
+          hasPhoto: !!file,
+          topPrediction: top.name,
+          confidence: top.value,
+        },
+      });
+      setLogId(res.id);
+    } catch {
+      enqueueTriage({
+        symptoms: selected,
+        photoDataUrl: file,
+        topPrediction: top.name,
+        confidence: top.value,
+      });
+      setPendingCount(listPending().length);
+      toast.error("Couldn't reach server — cached for later");
+    }
+  };
+
+  const sendFeedback = async (helpful: boolean) => {
+    if (!logId) {
+      setFeedbackDone(true);
+      toast.success("Thanks — feedback will attach when synced");
+      return;
+    }
+    try {
+      await submitFeedbackFn({ data: { id: logId, helpful, note: feedbackNote || undefined } });
+      setFeedbackDone(true);
+      toast.success("Thanks for the feedback!");
+    } catch {
+      toast.error("Couldn't save feedback");
+    }
+  };
+
+  const forceSync = async () => {
+    const { synced, failed } = await syncQueue();
+    setPendingCount(listPending().length);
+    if (synced > 0) toast.success(`Synced ${synced} entries`);
+    if (synced === 0 && failed === 0) toast.info("Nothing to sync");
+  };
+
+  const topPred = result ? [...result].sort((a, b) => b.value - a.value)[0] : null;
+  const chartData: Prediction[] = result ?? CLASSES.map((c) => ({ ...c, value: 0 }));
+
   return (
     <div className="min-h-screen">
       <SiteNav />
+
+      {(!online || pendingCount > 0) && (
+        <div
+          className={`mx-auto max-w-7xl px-6 mt-4 flex items-center justify-between gap-3 rounded-2xl p-3 text-sm ring-1 ${
+            !online ? "bg-accent-soft ring-accent/40 text-primary-deep" : "bg-secondary ring-border"
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <WifiOff className="h-4 w-4" />
+            {!online
+              ? "You're offline — triage still works and will sync automatically."
+              : `${pendingCount} triage ${pendingCount === 1 ? "entry" : "entries"} waiting to sync.`}
+          </div>
+          {online && pendingCount > 0 && (
+            <button
+              onClick={forceSync}
+              className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground hover:brightness-110"
+            >
+              <RefreshCw className="h-3 w-3" /> Sync now
+            </button>
+          )}
+        </div>
+      )}
 
       <section className="mx-auto max-w-7xl px-6 pt-16">
         <span className="text-xs font-semibold uppercase tracking-widest text-accent">
