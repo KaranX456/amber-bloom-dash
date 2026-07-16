@@ -9,6 +9,9 @@ import {
   ArrowRight,
   Download,
   Sparkles,
+  TrendingUp,
+  TrendingDown,
+  Minus,
 } from "lucide-react";
 import {
   Bar,
@@ -56,9 +59,16 @@ export const Route = createFileRoute("/plan")({
 
 const chartColors = ["#2f5d3a", "#c98a2a", "#4d8a54", "#d97706", "#7fb069"];
 
+type PriceRow = { ingredient: string; price_kes: number; recorded_at: string };
+type RangeKey = "7" | "30" | "90";
+const INGREDIENTS = ["Maize", "Soya", "Fishmeal", "Calcium", "Premix"] as const;
+
 function Plan() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<Tables<"farmer_profiles"> | null>(null);
+  const [priceHistory, setPriceHistory] = useState<PriceRow[]>([]);
+  const [range, setRange] = useState<RangeKey>("30");
+  const [loadingPrices, setLoadingPrices] = useState(true);
 
   useEffect(() => {
     if (!user) return;
@@ -69,6 +79,26 @@ function Plan() {
       .maybeSingle()
       .then(({ data }) => setProfile(data));
   }, [user]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoadingPrices(true);
+    const since = new Date();
+    since.setDate(since.getDate() - 90);
+    (supabase as any)
+      .from("feed_prices")
+      .select("ingredient, price_kes, recorded_at")
+      .gte("recorded_at", since.toISOString().slice(0, 10))
+      .order("recorded_at", { ascending: true })
+      .then(({ data }: { data: PriceRow[] | null }) => {
+        if (cancelled) return;
+        setPriceHistory(data ?? []);
+        setLoadingPrices(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const birds = profile?.current_flock_size ?? 0;
   const spaceM2 = Math.round(birds * 1.3); // ~0.3 m² coop + 1 m² run per bird
@@ -100,9 +130,44 @@ function Plan() {
     Calcium: 40,
     Premix: 320,
   };
+  // Latest price per ingredient from history (falls back to defaults)
+  const latestPrices: Record<string, number> = { ...pricePerKg };
+  for (const ing of INGREDIENTS) {
+    const rows = priceHistory.filter((r) => r.ingredient === ing);
+    if (rows.length) latestPrices[ing] = Number(rows[rows.length - 1].price_kes);
+  }
+
+  // Build trend series for the selected range
+  const days = Number(range);
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - days);
+  const cutoffStr = cutoff.toISOString().slice(0, 10);
+  const rangeRows = priceHistory.filter((r) => r.recorded_at >= cutoffStr);
+  const dateSet = Array.from(new Set(rangeRows.map((r) => r.recorded_at))).sort();
+  const trendData = dateSet.map((date) => {
+    const point: Record<string, number | string> = { date: date.slice(5) };
+    for (const ing of INGREDIENTS) {
+      const row = rangeRows.find((r) => r.recorded_at === date && r.ingredient === ing);
+      if (row) point[ing] = Number(row.price_kes);
+    }
+    return point;
+  });
+  const trendStats = INGREDIENTS.map((ing) => {
+    const rows = rangeRows.filter((r) => r.ingredient === ing);
+    if (rows.length < 2) return { ing, current: latestPrices[ing], change: 0, pct: 0 };
+    const first = Number(rows[0].price_kes);
+    const last = Number(rows[rows.length - 1].price_kes);
+    return {
+      ing,
+      current: last,
+      change: last - first,
+      pct: first ? ((last - first) / first) * 100 : 0,
+    };
+  });
+
   const feedData = feedMix.map((f) => {
     const cost = Math.round(weeklyBudget * f.share);
-    const kg = weeklyBudget > 0 ? +(cost / pricePerKg[f.name]).toFixed(1) : 0;
+    const kg = weeklyBudget > 0 ? +(cost / latestPrices[f.name]).toFixed(1) : 0;
     return { name: f.name, kg, cost };
   });
   const totalCost = feedData.reduce((s, f) => s + f.cost, 0);
