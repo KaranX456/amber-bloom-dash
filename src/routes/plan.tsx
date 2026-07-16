@@ -427,7 +427,7 @@ function Plan() {
                   <tr key={f.name} className="border-b border-border/60 last:border-0">
                     <td className="py-3 font-medium">{f.name}</td>
                     <td className="py-3">{f.kg} kg</td>
-                    <td className="py-3">KES {pricePerKg[f.name]}</td>
+                    <td className="py-3">KES {latestPrices[f.name].toFixed(0)}</td>
                     <td className="py-3 text-right font-semibold text-primary">
                       KES {f.cost.toLocaleString()}
                     </td>
@@ -441,6 +441,118 @@ function Plan() {
                 </tr>
               </tbody>
             </table>
+          </div>
+        </div>
+      </section>
+
+      {/* Feed price trends */}
+      <section className="mx-auto max-w-7xl px-6 mt-8">
+        <div className="rounded-2xl bg-card p-6 ring-1 ring-border/60 shadow-sm">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <h3 className="font-display text-lg font-semibold">Feed price trends</h3>
+              <p className="text-xs text-muted-foreground">
+                Historical KES / kg across the last {range} days
+              </p>
+            </div>
+            <div className="inline-flex rounded-full bg-secondary p-1 text-xs">
+              {(["7", "30", "90"] as RangeKey[]).map((r) => (
+                <button
+                  key={r}
+                  onClick={() => setRange(r)}
+                  className={`px-3 py-1.5 rounded-full transition ${
+                    range === r
+                      ? "bg-primary text-primary-foreground"
+                      : "text-secondary-foreground hover:text-primary"
+                  }`}
+                >
+                  {r}d
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            {trendStats.map((s, i) => {
+              const up = s.pct > 0.5;
+              const down = s.pct < -0.5;
+              const Icon = up ? TrendingUp : down ? TrendingDown : Minus;
+              const tone = up
+                ? "text-red-600 bg-red-50"
+                : down
+                  ? "text-emerald-700 bg-emerald-50"
+                  : "text-muted-foreground bg-muted";
+              return (
+                <div
+                  key={s.ing}
+                  className="rounded-xl bg-background p-4 ring-1 ring-border/60"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-muted-foreground">
+                      {s.ing}
+                    </span>
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${tone}`}
+                    >
+                      <Icon className="h-3 w-3" />
+                      {s.pct > 0 ? "+" : ""}
+                      {s.pct.toFixed(1)}%
+                    </span>
+                  </div>
+                  <div className="mt-1 font-display text-xl font-bold text-primary-deep">
+                    KES {s.current.toFixed(0)}
+                  </div>
+                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                    per kg
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-6 h-72">
+            {loadingPrices ? (
+              <div className="h-full grid place-items-center text-sm text-muted-foreground">
+                Loading price history…
+              </div>
+            ) : trendData.length === 0 ? (
+              <div className="h-full grid place-items-center text-sm text-muted-foreground">
+                No price data yet.
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={trendData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e2d8" />
+                  <XAxis
+                    dataKey="date"
+                    stroke="#6b7160"
+                    fontSize={11}
+                    minTickGap={20}
+                  />
+                  <YAxis stroke="#6b7160" fontSize={11} />
+                  <Tooltip
+                    contentStyle={{
+                      background: "white",
+                      border: "1px solid #e5e2d8",
+                      borderRadius: 12,
+                    }}
+                    formatter={(v: number) => `KES ${Number(v).toFixed(0)}`}
+                  />
+                  <Legend wrapperStyle={{ fontSize: 12 }} />
+                  {INGREDIENTS.map((ing, i) => (
+                    <Line
+                      key={ing}
+                      type="monotone"
+                      dataKey={ing}
+                      stroke={chartColors[i % chartColors.length]}
+                      strokeWidth={2}
+                      dot={false}
+                      connectNulls
+                    />
+                  ))}
+                </LineChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
       </section>
