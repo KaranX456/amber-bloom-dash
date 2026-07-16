@@ -131,6 +131,30 @@ export type Database = {
         }
         Relationships: []
       }
+      feed_prices: {
+        Row: {
+          created_at: string
+          id: string
+          ingredient: string
+          price_kes: number
+          recorded_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ingredient: string
+          price_kes: number
+          recorded_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ingredient?: string
+          price_kes?: number
+          recorded_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
