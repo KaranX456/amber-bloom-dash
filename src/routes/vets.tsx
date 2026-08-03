@@ -1,9 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { useState } from "react";
-import { Phone, MapPin, Star, Clock, Search, Navigation } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import {
+  Phone,
+  MapPin,
+  Star,
+  Clock,
+  Search,
+  Navigation,
+  BadgeCheck,
+  Loader2,
+  Users,
+} from "lucide-react";
+import { toast } from "sonner";
 import { SiteNav, SiteFooter } from "@/components/SiteNav";
 import { RequireAuth } from "@/components/RequireAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/vets")({
   head: () => ({
@@ -12,8 +25,16 @@ export const Route = createFileRoute("/vets")({
       {
         name: "description",
         content:
-          "Find the nearest vet or agrovet to your farm, with contact details, ratings and travel time.",
+          "Find the nearest vet or agrovet to your farm, with contact details, ratings, travel time and community-verified supply confirmations.",
       },
+      { property: "og:title", content: "Community-verified vets & agrovets" },
+      {
+        property: "og:description",
+        content:
+          "Farmer-confirmed agrovets near your ward — see who actually had stock before you travel.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: () => (
@@ -26,28 +47,109 @@ export const Route = createFileRoute("/vets")({
 type Provider = {
   id: string;
   name: string;
-  kind: "Vet" | "Agrovet";
-  distance: number;
-  rating: number;
-  phone: string;
-  hours: string;
-  address: string;
-  x: number; // % position on map
-  y: number;
+  kind: string;
+  distance_km: number | null;
+  rating: number | null;
+  phone: string | null;
+  hours: string | null;
+  address: string | null;
+  map_x: number | null;
+  map_y: number | null;
 };
 
-const providers: Provider[] = [];
+type Verification = {
+  id: string;
+  agrovet_id: string;
+  user_id: string;
+  purchased_successfully: boolean;
+  note: string | null;
+};
 
 function Vets() {
+  const { user } = useAuth();
+  const [providers, setProviders] = useState<Provider[]>([]);
+  const [verifications, setVerifications] = useState<Verification[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [note, setNote] = useState("");
   const [active, setActive] = useState<string | null>(null);
-  const [filter, setFilter] = useState<"All" | "Vet" | "Agrovet">("All");
+  const [filter, setFilter] = useState<"All" | "Vet" | "Agrovet" | "Verified">("All");
   const [q, setQ] = useState("");
+
+  const load = useCallback(async () => {
+    const [p, v] = await Promise.all([
+      supabase
+        .from("agrovets")
+        .select("id,name,kind,distance_km,rating,phone,hours,address,map_x,map_y")
+        .order("distance_km", { ascending: true, nullsFirst: false }),
+      supabase
+        .from("agrovet_verifications")
+        .select("id,agrovet_id,user_id,purchased_successfully,note"),
+    ]);
+    if (p.error) toast.error("Could not load providers");
+    setProviders((p.data as Provider[]) ?? []);
+    setVerifications((v.data as Verification[]) ?? []);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const countFor = (id: string) =>
+    verifications.filter((v) => v.agrovet_id === id && v.purchased_successfully).length;
+  const mine = (id: string) => verifications.find((v) => v.agrovet_id === id && v.user_id === user?.id);
 
   const list = providers.filter(
     (p) =>
-      (filter === "All" || p.kind === filter) &&
+      (filter === "All" ||
+        (filter === "Verified" ? countFor(p.id) > 0 : p.kind === filter)) &&
       (q === "" || p.name.toLowerCase().includes(q.toLowerCase()))
   );
+
+  const selected = providers.find((x) => x.id === active) ?? null;
+  const myVerification = selected ? mine(selected.id) : undefined;
+
+  useEffect(() => {
+    setNote(myVerification?.note ?? "");
+  }, [myVerification?.id, active]);
+
+  async function confirmPurchase(purchased: boolean) {
+    if (!selected || !user) return;
+    setSaving(true);
+    const { error } = await supabase.from("agrovet_verifications").upsert(
+      {
+        agrovet_id: selected.id,
+        user_id: user.id,
+        purchased_successfully: purchased,
+        note: note.trim() || null,
+      },
+      { onConflict: "agrovet_id,user_id" }
+    );
+    setSaving(false);
+    if (error) {
+      toast.error("Could not save your confirmation");
+      return;
+    }
+    toast.success(purchased ? "Thanks — marked as verified" : "Thanks for the feedback");
+    void load();
+  }
+
+  async function removeVerification() {
+    if (!myVerification) return;
+    setSaving(true);
+    const { error } = await supabase
+      .from("agrovet_verifications")
+      .delete()
+      .eq("id", myVerification.id);
+    setSaving(false);
+    if (error) {
+      toast.error("Could not remove your confirmation");
+      return;
+    }
+    toast.success("Confirmation removed");
+    void load();
+  }
 
   return (
     <div className="min-h-screen">
@@ -61,7 +163,8 @@ function Vets() {
           Vets & agrovets near you.
         </h1>
         <p className="mt-4 text-muted-foreground max-w-xl">
-          Sorted by distance from your ward. Ratings and hours pulled live from Google Places.
+          Sorted by distance from your ward — and verified by farmers who actually bought
+          supplies there.
         </p>
       </section>
 
@@ -78,8 +181,8 @@ function Vets() {
             />
           </div>
 
-          <div className="flex gap-2">
-            {(["All", "Vet", "Agrovet"] as const).map((k) => (
+          <div className="flex flex-wrap gap-2">
+            {(["All", "Vet", "Agrovet", "Verified"] as const).map((k) => (
               <button
                 key={k}
                 onClick={() => setFilter(k)}
@@ -89,19 +192,25 @@ function Vets() {
                     : "bg-background ring-border text-foreground/70 hover:ring-primary/40"
                 }`}
               >
-                {k}
+                {k === "Verified" ? "Community verified" : k}
               </button>
             ))}
           </div>
 
           <div className="space-y-3 max-h-[560px] overflow-y-auto pr-1">
-            {list.length === 0 && (
+            {loading && (
+              <div className="flex justify-center py-10">
+                <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              </div>
+            )}
+            {!loading && list.length === 0 && (
               <div className="rounded-2xl bg-card p-6 text-sm text-muted-foreground ring-1 ring-border/60 text-center">
                 No vets or agrovets loaded yet.
               </div>
             )}
             {list.map((p) => {
               const on = active === p.id;
+              const votes = countFor(p.id);
               return (
                 <motion.button
                   layout
@@ -115,17 +224,24 @@ function Vets() {
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <span
-                        className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                          on
-                            ? "bg-accent text-accent-foreground"
-                            : p.kind === "Vet"
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-accent text-accent-foreground"
-                        }`}
-                      >
-                        {p.kind}
-                      </span>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span
+                          className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                            on
+                              ? "bg-accent text-accent-foreground"
+                              : p.kind === "Vet"
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-accent text-accent-foreground"
+                          }`}
+                        >
+                          {p.kind}
+                        </span>
+                        {votes > 0 && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary ring-1 ring-primary/30">
+                            <BadgeCheck className="h-3 w-3" /> Verified · {votes}
+                          </span>
+                        )}
+                      </div>
                       <div className="mt-2 font-display font-semibold">{p.name}</div>
                       <div
                         className={`text-xs mt-1 ${
@@ -141,14 +257,14 @@ function Vets() {
                           on ? "text-accent" : "text-primary"
                         }`}
                       >
-                        {p.distance} km
+                        {p.distance_km ?? 0} km
                       </div>
                       <div
                         className={`text-xs flex items-center gap-1 justify-end ${
                           on ? "text-primary-foreground/70" : "text-muted-foreground"
                         }`}
                       >
-                        <Star className="h-3 w-3 fill-current text-accent" /> {p.rating}
+                        <Star className="h-3 w-3 fill-current text-accent" /> {p.rating ?? 0}
                       </div>
                     </div>
                   </div>
@@ -167,7 +283,6 @@ function Vets() {
                 "radial-gradient(circle at 40% 40%, oklch(0.55 0.14 150 / 0.25), transparent 60%), radial-gradient(circle at 70% 70%, oklch(0.78 0.16 75 / 0.15), transparent 55%), oklch(0.94 0.03 120)",
             }}
           >
-            {/* map grid */}
             <svg
               className="absolute inset-0 h-full w-full opacity-30"
               xmlns="http://www.w3.org/2000/svg"
@@ -179,7 +294,6 @@ function Vets() {
               </defs>
               <rect width="100%" height="100%" fill="url(#grid)" />
             </svg>
-            {/* roads */}
             <svg className="absolute inset-0 h-full w-full" preserveAspectRatio="none">
               <path
                 d="M 0 200 Q 200 120 400 250 T 800 300"
@@ -197,7 +311,6 @@ function Vets() {
               />
             </svg>
 
-            {/* You are here */}
             <div
               className="absolute -translate-x-1/2 -translate-y-1/2"
               style={{ left: "45%", top: "50%" }}
@@ -215,12 +328,13 @@ function Vets() {
 
             {providers.map((p) => {
               const on = active === p.id;
+              const verified = countFor(p.id) > 0;
               return (
                 <button
                   key={p.id}
                   onClick={() => setActive(p.id)}
                   className="absolute -translate-x-1/2 -translate-y-full group"
-                  style={{ left: `${p.x}%`, top: `${p.y}%` }}
+                  style={{ left: `${p.map_x ?? 50}%`, top: `${p.map_y ?? 50}%` }}
                 >
                   <div
                     className={`flex flex-col items-center transition ${
@@ -228,11 +342,14 @@ function Vets() {
                     }`}
                   >
                     <div
-                      className={`flex h-9 w-9 items-center justify-center rounded-full shadow-lg ring-2 ring-white ${
+                      className={`relative flex h-9 w-9 items-center justify-center rounded-full shadow-lg ring-2 ring-white ${
                         on ? "bg-accent text-accent-foreground" : "bg-primary text-primary-foreground"
                       }`}
                     >
                       <MapPin className="h-4 w-4" />
+                      {verified && (
+                        <BadgeCheck className="absolute -right-1 -top-1 h-4 w-4 rounded-full bg-white text-primary" />
+                      )}
                     </div>
                     <div className="mt-0.5 h-2 w-2 rotate-45 bg-white ring-1 ring-black/10 -mt-1" />
                     {on && (
@@ -247,72 +364,163 @@ function Vets() {
           </div>
 
           {/* Details card */}
-          {(() => {
-            const p = providers.find((x) => x.id === active);
-            if (!p) {
-              return (
-                <div className="rounded-3xl bg-card p-6 ring-1 ring-border/60 shadow-sm text-sm text-muted-foreground text-center">
-                  Select a provider to see details.
-                </div>
-              );
-            }
-            return (
-              <motion.div
-                key={p.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="rounded-3xl bg-card p-6 ring-1 ring-border/60 shadow-sm grid gap-6 md:grid-cols-3"
-              >
-                <div className="md:col-span-2">
+          {!selected ? (
+            <div className="rounded-3xl bg-card p-6 ring-1 ring-border/60 shadow-sm text-sm text-muted-foreground text-center">
+              Select a provider to see details.
+            </div>
+          ) : (
+            <motion.div
+              key={selected.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-3xl bg-card p-6 ring-1 ring-border/60 shadow-sm grid gap-6 md:grid-cols-3"
+            >
+              <div className="md:col-span-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="inline-block rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent-foreground">
-                    {p.kind}
+                    {selected.kind}
                   </span>
-                  <h3 className="mt-2 font-display text-2xl font-bold text-primary-deep">
-                    {p.name}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mt-1">{p.address}</p>
-                  <div className="mt-4 grid gap-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-primary" /> {p.phone}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-primary" /> {p.hours}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Navigation className="h-4 w-4 text-primary" /> {p.distance} km · ~
-                      {Math.round(p.distance * 4)} min by boda
-                    </div>
+                  {countFor(selected.id) > 0 && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary ring-1 ring-primary/30">
+                      <BadgeCheck className="h-3 w-3" /> Verified by community
+                    </span>
+                  )}
+                </div>
+                <h3 className="mt-2 font-display text-2xl font-bold text-primary-deep">
+                  {selected.name}
+                </h3>
+                <p className="text-sm text-muted-foreground mt-1">{selected.address}</p>
+                <div className="mt-4 grid gap-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-4 w-4 text-primary" /> {selected.phone ?? "—"}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-primary" /> {selected.hours ?? "—"}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Navigation className="h-4 w-4 text-primary" /> {selected.distance_km ?? 0} km ·
+                    ~{Math.round((selected.distance_km ?? 0) * 4)} min by boda
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4 text-primary" /> {countFor(selected.id)} farmer
+                    {countFor(selected.id) === 1 ? "" : "s"} confirmed a successful purchase
                   </div>
                 </div>
-                <div className="flex flex-col justify-between gap-3">
-                  <div className="rounded-2xl bg-accent-soft p-4 text-center">
-                    <div className="font-display text-4xl font-bold text-primary-deep">
-                      {p.rating}
+
+                {/* Community verification */}
+                <div className="mt-5 rounded-2xl bg-accent-soft/60 p-4 ring-1 ring-border/60">
+                  <div className="font-display font-semibold text-primary-deep">
+                    Did you buy supplies here?
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Your confirmation helps other farmers know who actually has stock.
+                  </p>
+                  <textarea
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    rows={2}
+                    placeholder="Optional note (what you bought, prices, stock…)"
+                    className="mt-3 w-full rounded-xl bg-background p-3 text-sm ring-1 ring-border outline-none focus:ring-primary/50"
+                  />
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button
+                      disabled={saving}
+                      onClick={() => confirmPurchase(true)}
+                      className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition disabled:opacity-60 ${
+                        myVerification?.purchased_successfully
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-background ring-1 ring-border hover:ring-primary/50"
+                      }`}
+                    >
+                      <BadgeCheck className="h-4 w-4" /> Yes, I bought here
+                    </button>
+                    <button
+                      disabled={saving}
+                      onClick={() => confirmPurchase(false)}
+                      className={`rounded-full px-4 py-2 text-xs font-semibold transition disabled:opacity-60 ${
+                        myVerification && !myVerification.purchased_successfully
+                          ? "bg-destructive text-destructive-foreground"
+                          : "bg-background ring-1 ring-border hover:ring-primary/50"
+                      }`}
+                    >
+                      No stock / bad trip
+                    </button>
+                    {myVerification && (
+                      <button
+                        disabled={saving}
+                        onClick={removeVerification}
+                        className="rounded-full px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground disabled:opacity-60"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Recent community notes */}
+                {verifications.filter((v) => v.agrovet_id === selected.id && v.note).length > 0 && (
+                  <div className="mt-4 space-y-2">
+                    <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                      Farmer notes
                     </div>
-                    <div className="flex justify-center gap-0.5 mt-1 text-accent">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-3.5 w-3.5 ${
-                            i < Math.round(p.rating) ? "fill-current" : ""
-                          }`}
-                        />
+                    {verifications
+                      .filter((v) => v.agrovet_id === selected.id && v.note)
+                      .slice(0, 4)
+                      .map((v) => (
+                        <div
+                          key={v.id}
+                          className="rounded-xl bg-background p-3 text-sm ring-1 ring-border/60"
+                        >
+                          <span
+                            className={`mr-2 text-[10px] font-bold uppercase ${
+                              v.purchased_successfully ? "text-primary" : "text-destructive"
+                            }`}
+                          >
+                            {v.purchased_successfully ? "Verified" : "No stock"}
+                          </span>
+                          {v.note}
+                        </div>
                       ))}
-                    </div>
-                    <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">
-                      Google reviews
-                    </div>
                   </div>
-                  <a
-                    href={`tel:${p.phone.replace(/\s/g, "")}`}
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition"
-                  >
-                    <Phone className="h-4 w-4" /> Call now
-                  </a>
+                )}
+              </div>
+
+              <div className="flex flex-col justify-between gap-3">
+                <div className="rounded-2xl bg-accent-soft p-4 text-center">
+                  <div className="font-display text-4xl font-bold text-primary-deep">
+                    {selected.rating ?? 0}
+                  </div>
+                  <div className="flex justify-center gap-0.5 mt-1 text-accent">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`h-3.5 w-3.5 ${
+                          i < Math.round(selected.rating ?? 0) ? "fill-current" : ""
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">
+                    Google reviews
+                  </div>
                 </div>
-              </motion.div>
-            );
-          })()}
+                <div className="rounded-2xl bg-primary-deep p-4 text-center text-primary-foreground">
+                  <div className="font-display text-4xl font-bold text-accent">
+                    {countFor(selected.id)}
+                  </div>
+                  <div className="text-[10px] uppercase tracking-widest text-primary-foreground/70 mt-1">
+                    Community confirmations
+                  </div>
+                </div>
+                <a
+                  href={`tel:${(selected.phone ?? "").replace(/\s/g, "")}`}
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition"
+                >
+                  <Phone className="h-4 w-4" /> Call now
+                </a>
+              </div>
+            </motion.div>
+          )}
         </div>
       </section>
 
