@@ -14,6 +14,95 @@ export type Database = {
   }
   public: {
     Tables: {
+      agrovet_verifications: {
+        Row: {
+          agrovet_id: string
+          created_at: string
+          id: string
+          note: string | null
+          purchased_successfully: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          agrovet_id: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          purchased_successfully?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          agrovet_id?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          purchased_successfully?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agrovet_verifications_agrovet_id_fkey"
+            columns: ["agrovet_id"]
+            isOneToOne: false
+            referencedRelation: "agrovets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agrovets: {
+        Row: {
+          address: string | null
+          county: string | null
+          created_at: string
+          distance_km: number | null
+          hours: string | null
+          id: string
+          kind: string
+          map_x: number | null
+          map_y: number | null
+          name: string
+          phone: string | null
+          rating: number | null
+          updated_at: string
+          ward: string | null
+        }
+        Insert: {
+          address?: string | null
+          county?: string | null
+          created_at?: string
+          distance_km?: number | null
+          hours?: string | null
+          id?: string
+          kind?: string
+          map_x?: number | null
+          map_y?: number | null
+          name: string
+          phone?: string | null
+          rating?: number | null
+          updated_at?: string
+          ward?: string | null
+        }
+        Update: {
+          address?: string | null
+          county?: string | null
+          created_at?: string
+          distance_km?: number | null
+          hours?: string | null
+          id?: string
+          kind?: string
+          map_x?: number | null
+          map_y?: number | null
+          name?: string
+          phone?: string | null
+          rating?: number | null
+          updated_at?: string
+          ward?: string | null
+        }
+        Relationships: []
+      }
       diagnosis_audit_log: {
         Row: {
           confidence: number | null
