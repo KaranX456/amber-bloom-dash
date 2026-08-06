@@ -416,13 +416,8 @@ function Plan() {
       {/* Feed price trends */}
       <section className="mx-auto max-w-7xl px-6 mt-8">
         <div className="rounded-2xl bg-card p-6 ring-1 ring-border/60 shadow-sm">
-          <div className="flex items-start justify-between gap-4 flex-wrap">
-            <div>
-              <h3 className="font-display text-lg font-semibold">Feed price trends</h3>
-              <p className="text-xs text-muted-foreground">
-                Historical KES / kg across the last {range} days
-              </p>
-            </div>
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <h3 className="font-display text-lg font-semibold">Feed prices</h3>
             <div className="inline-flex rounded-full bg-secondary p-1 text-xs">
               {(["7", "30", "90"] as RangeKey[]).map((r) => (
                 <button
