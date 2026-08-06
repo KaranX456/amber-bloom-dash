@@ -366,23 +366,20 @@ function Plan() {
           <div className="bg-primary-deep text-primary-foreground p-6 flex-1">
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-5 w-5 text-accent" />
-              <h3 className="font-display text-lg font-semibold">Bylaw status</h3>
+              <h3 className="font-display text-lg font-semibold">Bylaws</h3>
             </div>
             <ul className="mt-4 space-y-2 text-sm text-primary-foreground/85">
               <li className="flex justify-between"><span>Ward</span><span className="text-accent font-semibold">{ward}</span></li>
               <li className="flex justify-between"><span>County</span><span className="text-accent font-semibold">{profile?.county ?? "—"}</span></li>
-              <li className="flex justify-between"><span>Dedicated coop</span><span className="text-accent font-semibold">{profile ? (profile.has_dedicated_coop ? "Yes" : "No") : "—"}</span></li>
-              <li className="flex justify-between"><span>Water source</span><span className="text-accent font-semibold">{profile?.water_source ?? "—"}</span></li>
+              <li className="flex justify-between"><span>Coop</span><span className="text-accent font-semibold">{profile ? (profile.has_dedicated_coop ? "Yes" : "No") : "—"}</span></li>
+              <li className="flex justify-between"><span>Water</span><span className="text-accent font-semibold">{profile?.water_source ?? "—"}</span></li>
             </ul>
           </div>
         </div>
 
         {/* Feed table */}
         <div className="rounded-2xl bg-card p-6 ring-1 ring-border/60 shadow-sm lg:col-span-3">
-          <div className="flex items-center justify-between">
-            <h3 className="font-display text-lg font-semibold">Weekly feed breakdown</h3>
-            <span className="text-xs text-muted-foreground">{hasPlan ? "Estimated from budget" : "Awaiting profile"}</span>
-          </div>
+          <h3 className="font-display text-lg font-semibold">Feed breakdown</h3>
           <div className="mt-4 overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
