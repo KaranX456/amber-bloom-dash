@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
@@ -6,9 +6,7 @@ import {
   Egg,
   Wheat,
   Building2,
-  ArrowRight,
   Download,
-  Sparkles,
   TrendingUp,
   TrendingDown,
   Minus,
@@ -21,8 +19,6 @@ import {
   Legend,
   Line,
   LineChart,
-  Pie,
-  PieChart,
   RadialBar,
   RadialBarChart,
   ResponsiveContainer,
@@ -232,25 +228,15 @@ function Plan() {
 
       {/* Header */}
       <section className="mx-auto max-w-7xl px-6 pt-16">
-        <div className="flex items-start justify-between gap-6 flex-wrap">
-          <div>
-            <span className="text-xs font-semibold uppercase tracking-widest text-accent">
-              Step 2 · Your flock plan
-            </span>
-            <h1 className="mt-3 font-display text-4xl md:text-5xl font-bold text-primary-deep">
-              {profile?.full_name ? `${profile.full_name.split(" ")[0]}'s flock plan` : "Your flock plan"}
-            </h1>
-            <p className="mt-4 text-muted-foreground max-w-xl">
-              {hasPlan
-                ? `Costed feed plan, bylaw check and expected production for ${ward}.`
-                : "Complete onboarding to generate a costed feed plan, bylaw check and expected production for your ward."}
-            </p>
-          </div>
+        <div className="flex items-center justify-between gap-6 flex-wrap">
+          <h1 className="font-display text-4xl md:text-5xl font-bold text-primary-deep">
+            {profile?.full_name ? `${profile.full_name.split(" ")[0]}'s flock plan` : "Your flock plan"}
+          </h1>
           <button
             onClick={downloadPdf}
             className="inline-flex items-center gap-2 rounded-full bg-secondary px-5 py-2.5 text-sm font-medium text-secondary-foreground hover:bg-primary hover:text-primary-foreground transition"
           >
-            <Download className="h-4 w-4" /> Download plan (PDF)
+            <Download className="h-4 w-4" /> Download PDF
           </button>
         </div>
       </section>
@@ -258,10 +244,10 @@ function Plan() {
       {/* KPI row */}
       <section className="mx-auto max-w-7xl px-6 mt-10 grid gap-4 md:grid-cols-4">
         {[
-          { icon: Egg, k: String(birds), v: "Current flock size", tone: "primary" },
-          { icon: Building2, k: `${spaceM2} m²`, v: "Space needed", tone: "primary" },
-          { icon: Wheat, k: `KES ${weeklyBudget.toLocaleString()}`, v: "Weekly feed budget", tone: "accent" },
-          { icon: ShieldCheck, k: ward, v: "Ward bylaw", tone: "primary" },
+          { icon: Egg, k: String(birds), v: "Flock size" },
+          { icon: Building2, k: `${spaceM2} m²`, v: "Space needed" },
+          { icon: Wheat, k: `KES ${weeklyBudget.toLocaleString()}`, v: "Weekly budget" },
+          { icon: ShieldCheck, k: ward, v: "Ward" },
         ].map((k, i) => (
           <motion.div
             key={k.v}
@@ -270,13 +256,7 @@ function Plan() {
             transition={{ delay: i * 0.06 }}
             className="rounded-2xl bg-card p-5 ring-1 ring-border/60 shadow-sm"
           >
-            <span
-              className={`inline-flex h-10 w-10 items-center justify-center rounded-xl ${
-                k.tone === "accent"
-                  ? "bg-accent text-accent-foreground"
-                  : "bg-primary text-primary-foreground"
-              }`}
-            >
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
               <k.icon className="h-5 w-5" />
             </span>
             <div className="mt-3 font-display text-2xl font-bold">{k.k}</div>
@@ -289,10 +269,7 @@ function Plan() {
       <section className="mx-auto max-w-7xl px-6 mt-8 grid gap-4 lg:grid-cols-3">
         {/* Feasibility gauge */}
         <div className="rounded-2xl bg-card p-6 ring-1 ring-border/60 shadow-sm">
-          <h3 className="font-display text-lg font-semibold">Feasibility score</h3>
-          <p className="text-xs text-muted-foreground">
-            Space · budget · bylaws combined
-          </p>
+          <h3 className="font-display text-lg font-semibold">Feasibility</h3>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <RadialBarChart
@@ -310,24 +287,18 @@ function Plan() {
             <div className="font-display text-5xl font-bold text-primary-deep">{feasibilityScore}</div>
             <div className="text-xs text-muted-foreground uppercase tracking-widest">/ 100</div>
           </div>
-          <div className="mt-24 rounded-xl bg-accent-soft p-3 text-xs text-accent-foreground/90">
-            <Sparkles className="inline h-3.5 w-3.5 text-accent mr-1" />
-            {hasPlan ? "Score updates as your farm details change." : "Complete onboarding to generate a score."}
-          </div>
+          {!hasPlan && (
+            <div className="mt-24 rounded-xl bg-accent-soft p-3 text-xs text-accent-foreground/90 text-center">
+              Complete onboarding to generate a score.
+            </div>
+          )}
         </div>
 
         {/* Feed cost bar */}
         <div className="rounded-2xl bg-card p-6 ring-1 ring-border/60 shadow-sm lg:col-span-2">
           <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-display text-lg font-semibold">Least-cost feed plan</h3>
-              <p className="text-xs text-muted-foreground">
-                Weekly · {totalKg} kg total · KES {totalCost.toLocaleString()}
-              </p>
-            </div>
-            <span className="rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground">
-              {hasPlan ? `Based on ${ward} prices` : "Awaiting profile"}
-            </span>
+            <h3 className="font-display text-lg font-semibold">Weekly feed</h3>
+            <span className="text-xs text-muted-foreground">{totalKg} kg · KES {totalCost.toLocaleString()}</span>
           </div>
           <div className="mt-4 h-56">
             <ResponsiveContainer width="100%" height="100%">
@@ -354,10 +325,7 @@ function Plan() {
 
         {/* Egg curve */}
         <div className="rounded-2xl bg-card p-6 ring-1 ring-border/60 shadow-sm lg:col-span-2">
-          <h3 className="font-display text-lg font-semibold">Expected egg curve</h3>
-          <p className="text-xs text-muted-foreground">
-            Eggs / day across 24 weeks from point-of-lay
-          </p>
+          <h3 className="font-display text-lg font-semibold">Expected eggs</h3>
           <div className="mt-4 h-64">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={productionData}>
@@ -378,7 +346,6 @@ function Plan() {
                   strokeWidth={3}
                   dot={{ r: 4, fill: "#c98a2a" }}
                 />
-                <Legend />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -395,23 +362,20 @@ function Plan() {
           <div className="bg-primary-deep text-primary-foreground p-6 flex-1">
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-5 w-5 text-accent" />
-              <h3 className="font-display text-lg font-semibold">Bylaw status</h3>
+              <h3 className="font-display text-lg font-semibold">Bylaws</h3>
             </div>
             <ul className="mt-4 space-y-2 text-sm text-primary-foreground/85">
               <li className="flex justify-between"><span>Ward</span><span className="text-accent font-semibold">{ward}</span></li>
               <li className="flex justify-between"><span>County</span><span className="text-accent font-semibold">{profile?.county ?? "—"}</span></li>
-              <li className="flex justify-between"><span>Dedicated coop</span><span className="text-accent font-semibold">{profile ? (profile.has_dedicated_coop ? "Yes" : "No") : "—"}</span></li>
-              <li className="flex justify-between"><span>Water source</span><span className="text-accent font-semibold">{profile?.water_source ?? "—"}</span></li>
+              <li className="flex justify-between"><span>Coop</span><span className="text-accent font-semibold">{profile ? (profile.has_dedicated_coop ? "Yes" : "No") : "—"}</span></li>
+              <li className="flex justify-between"><span>Water</span><span className="text-accent font-semibold">{profile?.water_source ?? "—"}</span></li>
             </ul>
           </div>
         </div>
 
         {/* Feed table */}
         <div className="rounded-2xl bg-card p-6 ring-1 ring-border/60 shadow-sm lg:col-span-3">
-          <div className="flex items-center justify-between">
-            <h3 className="font-display text-lg font-semibold">Weekly feed breakdown</h3>
-            <span className="text-xs text-muted-foreground">{hasPlan ? "Estimated from budget" : "Awaiting profile"}</span>
-          </div>
+          <h3 className="font-display text-lg font-semibold">Feed breakdown</h3>
           <div className="mt-4 overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -448,13 +412,8 @@ function Plan() {
       {/* Feed price trends */}
       <section className="mx-auto max-w-7xl px-6 mt-8">
         <div className="rounded-2xl bg-card p-6 ring-1 ring-border/60 shadow-sm">
-          <div className="flex items-start justify-between gap-4 flex-wrap">
-            <div>
-              <h3 className="font-display text-lg font-semibold">Feed price trends</h3>
-              <p className="text-xs text-muted-foreground">
-                Historical KES / kg across the last {range} days
-              </p>
-            </div>
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <h3 className="font-display text-lg font-semibold">Feed prices</h3>
             <div className="inline-flex rounded-full bg-secondary p-1 text-xs">
               {(["7", "30", "90"] as RangeKey[]).map((r) => (
                 <button
@@ -501,9 +460,6 @@ function Plan() {
                   </div>
                   <div className="mt-1 font-display text-xl font-bold text-primary-deep">
                     KES {s.current.toFixed(0)}
-                  </div>
-                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                    per kg
                   </div>
                 </div>
               );
@@ -554,26 +510,6 @@ function Plan() {
               </ResponsiveContainer>
             )}
           </div>
-        </div>
-      </section>
-
-      {/* Next step */}
-      <section className="mx-auto max-w-7xl px-6 mt-12">
-        <div className="rounded-3xl bg-secondary p-8 flex items-center justify-between gap-6 flex-wrap">
-          <div>
-            <h3 className="font-display text-2xl font-semibold text-primary-deep">
-              Bird looks unwell? Run a quick check.
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              Upload a photo or tap symptoms — get an honest triage in seconds.
-            </p>
-          </div>
-          <Link
-            to="/disease"
-            className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition"
-          >
-            Open disease check <ArrowRight className="h-4 w-4" />
-          </Link>
         </div>
       </section>
 
