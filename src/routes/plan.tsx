@@ -517,26 +517,6 @@ function Plan() {
         </div>
       </section>
 
-      {/* Next step */}
-      <section className="mx-auto max-w-7xl px-6 mt-12">
-        <div className="rounded-3xl bg-secondary p-8 flex items-center justify-between gap-6 flex-wrap">
-          <div>
-            <h3 className="font-display text-2xl font-semibold text-primary-deep">
-              Bird looks unwell? Run a quick check.
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              Upload a photo or tap symptoms — get an honest triage in seconds.
-            </p>
-          </div>
-          <Link
-            to="/disease"
-            className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition"
-          >
-            Open disease check <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-      </section>
-
       <SiteFooter />
     </div>
   );
