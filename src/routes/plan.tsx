@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
@@ -6,9 +6,7 @@ import {
   Egg,
   Wheat,
   Building2,
-  ArrowRight,
   Download,
-  Sparkles,
   TrendingUp,
   TrendingDown,
   Minus,
@@ -21,8 +19,6 @@ import {
   Legend,
   Line,
   LineChart,
-  Pie,
-  PieChart,
   RadialBar,
   RadialBarChart,
   ResponsiveContainer,
