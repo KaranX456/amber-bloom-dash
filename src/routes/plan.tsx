@@ -329,10 +329,7 @@ function Plan() {
 
         {/* Egg curve */}
         <div className="rounded-2xl bg-card p-6 ring-1 ring-border/60 shadow-sm lg:col-span-2">
-          <h3 className="font-display text-lg font-semibold">Expected egg curve</h3>
-          <p className="text-xs text-muted-foreground">
-            Eggs / day across 24 weeks from point-of-lay
-          </p>
+          <h3 className="font-display text-lg font-semibold">Expected eggs</h3>
           <div className="mt-4 h-64">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={productionData}>
@@ -353,7 +350,6 @@ function Plan() {
                   strokeWidth={3}
                   dot={{ r: 4, fill: "#c98a2a" }}
                 />
-                <Legend />
               </LineChart>
             </ResponsiveContainer>
           </div>
