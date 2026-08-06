@@ -248,10 +248,10 @@ function Plan() {
       {/* KPI row */}
       <section className="mx-auto max-w-7xl px-6 mt-10 grid gap-4 md:grid-cols-4">
         {[
-          { icon: Egg, k: String(birds), v: "Current flock size", tone: "primary" },
-          { icon: Building2, k: `${spaceM2} m²`, v: "Space needed", tone: "primary" },
-          { icon: Wheat, k: `KES ${weeklyBudget.toLocaleString()}`, v: "Weekly feed budget", tone: "accent" },
-          { icon: ShieldCheck, k: ward, v: "Ward bylaw", tone: "primary" },
+          { icon: Egg, k: String(birds), v: "Flock size" },
+          { icon: Building2, k: `${spaceM2} m²`, v: "Space needed" },
+          { icon: Wheat, k: `KES ${weeklyBudget.toLocaleString()}`, v: "Weekly budget" },
+          { icon: ShieldCheck, k: ward, v: "Ward" },
         ].map((k, i) => (
           <motion.div
             key={k.v}
@@ -260,13 +260,7 @@ function Plan() {
             transition={{ delay: i * 0.06 }}
             className="rounded-2xl bg-card p-5 ring-1 ring-border/60 shadow-sm"
           >
-            <span
-              className={`inline-flex h-10 w-10 items-center justify-center rounded-xl ${
-                k.tone === "accent"
-                  ? "bg-accent text-accent-foreground"
-                  : "bg-primary text-primary-foreground"
-              }`}
-            >
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
               <k.icon className="h-5 w-5" />
             </span>
             <div className="mt-3 font-display text-2xl font-bold">{k.k}</div>
