@@ -301,15 +301,8 @@ function Plan() {
         {/* Feed cost bar */}
         <div className="rounded-2xl bg-card p-6 ring-1 ring-border/60 shadow-sm lg:col-span-2">
           <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-display text-lg font-semibold">Least-cost feed plan</h3>
-              <p className="text-xs text-muted-foreground">
-                Weekly · {totalKg} kg total · KES {totalCost.toLocaleString()}
-              </p>
-            </div>
-            <span className="rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground">
-              {hasPlan ? `Based on ${ward} prices` : "Awaiting profile"}
-            </span>
+            <h3 className="font-display text-lg font-semibold">Weekly feed</h3>
+            <span className="text-xs text-muted-foreground">{totalKg} kg · KES {totalCost.toLocaleString()}</span>
           </div>
           <div className="mt-4 h-56">
             <ResponsiveContainer width="100%" height="100%">
