@@ -465,9 +465,6 @@ function Plan() {
                   <div className="mt-1 font-display text-xl font-bold text-primary-deep">
                     KES {s.current.toFixed(0)}
                   </div>
-                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                    per kg
-                  </div>
                 </div>
               );
             })}
