@@ -232,25 +232,15 @@ function Plan() {
 
       {/* Header */}
       <section className="mx-auto max-w-7xl px-6 pt-16">
-        <div className="flex items-start justify-between gap-6 flex-wrap">
-          <div>
-            <span className="text-xs font-semibold uppercase tracking-widest text-accent">
-              Step 2 · Your flock plan
-            </span>
-            <h1 className="mt-3 font-display text-4xl md:text-5xl font-bold text-primary-deep">
-              {profile?.full_name ? `${profile.full_name.split(" ")[0]}'s flock plan` : "Your flock plan"}
-            </h1>
-            <p className="mt-4 text-muted-foreground max-w-xl">
-              {hasPlan
-                ? `Costed feed plan, bylaw check and expected production for ${ward}.`
-                : "Complete onboarding to generate a costed feed plan, bylaw check and expected production for your ward."}
-            </p>
-          </div>
+        <div className="flex items-center justify-between gap-6 flex-wrap">
+          <h1 className="font-display text-4xl md:text-5xl font-bold text-primary-deep">
+            {profile?.full_name ? `${profile.full_name.split(" ")[0]}'s flock plan` : "Your flock plan"}
+          </h1>
           <button
             onClick={downloadPdf}
             className="inline-flex items-center gap-2 rounded-full bg-secondary px-5 py-2.5 text-sm font-medium text-secondary-foreground hover:bg-primary hover:text-primary-foreground transition"
           >
-            <Download className="h-4 w-4" /> Download plan (PDF)
+            <Download className="h-4 w-4" /> Download PDF
           </button>
         </div>
       </section>
