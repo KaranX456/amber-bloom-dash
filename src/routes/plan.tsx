@@ -273,10 +273,7 @@ function Plan() {
       <section className="mx-auto max-w-7xl px-6 mt-8 grid gap-4 lg:grid-cols-3">
         {/* Feasibility gauge */}
         <div className="rounded-2xl bg-card p-6 ring-1 ring-border/60 shadow-sm">
-          <h3 className="font-display text-lg font-semibold">Feasibility score</h3>
-          <p className="text-xs text-muted-foreground">
-            Space · budget · bylaws combined
-          </p>
+          <h3 className="font-display text-lg font-semibold">Feasibility</h3>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <RadialBarChart
@@ -294,10 +291,11 @@ function Plan() {
             <div className="font-display text-5xl font-bold text-primary-deep">{feasibilityScore}</div>
             <div className="text-xs text-muted-foreground uppercase tracking-widest">/ 100</div>
           </div>
-          <div className="mt-24 rounded-xl bg-accent-soft p-3 text-xs text-accent-foreground/90">
-            <Sparkles className="inline h-3.5 w-3.5 text-accent mr-1" />
-            {hasPlan ? "Score updates as your farm details change." : "Complete onboarding to generate a score."}
-          </div>
+          {!hasPlan && (
+            <div className="mt-24 rounded-xl bg-accent-soft p-3 text-xs text-accent-foreground/90 text-center">
+              Complete onboarding to generate a score.
+            </div>
+          )}
         </div>
 
         {/* Feed cost bar */}
