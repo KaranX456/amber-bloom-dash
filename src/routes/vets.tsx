@@ -11,6 +11,8 @@ import {
   BadgeCheck,
   Loader2,
   Users,
+  Route as RouteIcon,
+  MessageSquare,
 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteNav, SiteFooter } from "@/components/SiteNav";
@@ -63,6 +65,7 @@ type Verification = {
   user_id: string;
   purchased_successfully: boolean;
   note: string | null;
+  created_at?: string | null;
 };
 
 function Vets() {
@@ -84,7 +87,8 @@ function Vets() {
         .order("distance_km", { ascending: true, nullsFirst: false }),
       supabase
         .from("agrovet_verifications")
-        .select("id,agrovet_id,user_id,purchased_successfully,note"),
+        .select("id,agrovet_id,user_id,purchased_successfully,note,created_at")
+        .order("created_at", { ascending: false }),
     ]);
     if (p.error) toast.error("Could not load providers");
     setProviders((p.data as Provider[]) ?? []);
@@ -109,6 +113,15 @@ function Vets() {
 
   const selected = providers.find((x) => x.id === active) ?? null;
   const myVerification = selected ? mine(selected.id) : undefined;
+
+  const directionsUrl = (p: Provider) =>
+    `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
+      [p.name, p.address].filter(Boolean).join(", ")
+    )}&travelmode=driving`;
+
+  const selectedNotes = selected
+    ? verifications.filter((v) => v.agrovet_id === selected.id && v.note)
+    : [];
 
   useEffect(() => {
     setNote(myVerification?.note ?? "");
