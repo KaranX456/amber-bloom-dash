@@ -328,6 +328,32 @@ function Vets() {
               className="absolute -translate-x-1/2 -translate-y-1/2"
               style={{ left: "45%", top: "50%" }}
             >
+              {/* route line to the selected provider */}
+            </div>
+
+            {selected && (
+              <svg className="absolute inset-0 h-full w-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <line
+                  x1="45"
+                  y1="50"
+                  x2={selected.map_x ?? 50}
+                  y2={selected.map_y ?? 50}
+                  stroke="#c98a2a"
+                  strokeWidth="0.7"
+                  strokeLinecap="round"
+                  strokeDasharray="2 1.5"
+                  vectorEffect="non-scaling-stroke"
+                  style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.2))" }}
+                >
+                  <animate attributeName="stroke-dashoffset" from="7" to="0" dur="1s" repeatCount="indefinite" />
+                </line>
+              </svg>
+            )}
+
+            <div
+              className="absolute -translate-x-1/2 -translate-y-1/2"
+              style={{ left: "45%", top: "50%" }}
+            >
               <div className="relative">
                 <span className="absolute inset-0 rounded-full bg-primary/40 animate-ping" />
                 <span className="relative flex h-5 w-5 items-center justify-center rounded-full bg-primary ring-4 ring-primary/20">
