@@ -11,6 +11,8 @@ import {
   BadgeCheck,
   Loader2,
   Users,
+  Route as RouteIcon,
+  MessageSquare,
 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteNav, SiteFooter } from "@/components/SiteNav";
@@ -63,6 +65,7 @@ type Verification = {
   user_id: string;
   purchased_successfully: boolean;
   note: string | null;
+  created_at?: string | null;
 };
 
 function Vets() {
@@ -84,7 +87,8 @@ function Vets() {
         .order("distance_km", { ascending: true, nullsFirst: false }),
       supabase
         .from("agrovet_verifications")
-        .select("id,agrovet_id,user_id,purchased_successfully,note"),
+        .select("id,agrovet_id,user_id,purchased_successfully,note,created_at")
+        .order("created_at", { ascending: false }),
     ]);
     if (p.error) toast.error("Could not load providers");
     setProviders((p.data as Provider[]) ?? []);
@@ -109,6 +113,15 @@ function Vets() {
 
   const selected = providers.find((x) => x.id === active) ?? null;
   const myVerification = selected ? mine(selected.id) : undefined;
+
+  const directionsUrl = (p: Provider) =>
+    `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
+      [p.name, p.address].filter(Boolean).join(", ")
+    )}&travelmode=driving`;
+
+  const selectedNotes = selected
+    ? verifications.filter((v) => v.agrovet_id === selected.id && v.note)
+    : [];
 
   useEffect(() => {
     setNote(myVerification?.note ?? "");
@@ -311,6 +324,25 @@ function Vets() {
               />
             </svg>
 
+            {selected && (
+              <svg className="absolute inset-0 h-full w-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <line
+                  x1="45"
+                  y1="50"
+                  x2={selected.map_x ?? 50}
+                  y2={selected.map_y ?? 50}
+                  stroke="#c98a2a"
+                  strokeWidth="0.7"
+                  strokeLinecap="round"
+                  strokeDasharray="2 1.5"
+                  vectorEffect="non-scaling-stroke"
+                  style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.2))" }}
+                >
+                  <animate attributeName="stroke-dashoffset" from="7" to="0" dur="1s" repeatCount="indefinite" />
+                </line>
+              </svg>
+            )}
+
             <div
               className="absolute -translate-x-1/2 -translate-y-1/2"
               style={{ left: "45%", top: "50%" }}
@@ -401,6 +433,14 @@ function Vets() {
                     <Navigation className="h-4 w-4 text-primary" /> {selected.distance_km ?? 0} km ·
                     ~{Math.round((selected.distance_km ?? 0) * 4)} min by boda
                   </div>
+                  <a
+                    href={directionsUrl(selected)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-1 inline-flex w-fit items-center gap-2 rounded-full bg-primary-deep px-4 py-2 text-xs font-semibold text-primary-foreground hover:brightness-110 transition"
+                  >
+                    <RouteIcon className="h-4 w-4" /> Get directions
+                  </a>
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4 text-primary" /> {countFor(selected.id)} farmer
                     {countFor(selected.id) === 1 ? "" : "s"} confirmed a successful purchase
@@ -457,32 +497,41 @@ function Vets() {
                   </div>
                 </div>
 
-                {/* Recent community notes */}
-                {verifications.filter((v) => v.agrovet_id === selected.id && v.note).length > 0 && (
-                  <div className="mt-4 space-y-2">
-                    <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                      Farmer notes
+                {/* Farmer comments */}
+                <div className="mt-5 space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                    <MessageSquare className="h-3.5 w-3.5" /> Farmer comments · {selectedNotes.length}
+                  </div>
+                  {selectedNotes.length === 0 ? (
+                    <div className="rounded-xl bg-background p-3 text-sm text-muted-foreground ring-1 ring-border/60">
+                      No comments yet — be the first to share what you found here.
                     </div>
-                    {verifications
-                      .filter((v) => v.agrovet_id === selected.id && v.note)
-                      .slice(0, 4)
-                      .map((v) => (
-                        <div
-                          key={v.id}
-                          className="rounded-xl bg-background p-3 text-sm ring-1 ring-border/60"
-                        >
+                  ) : (
+                    selectedNotes.map((v) => (
+                      <div
+                        key={v.id}
+                        className="rounded-xl bg-background p-3 text-sm ring-1 ring-border/60"
+                      >
+                        <div className="flex items-center justify-between gap-2">
                           <span
-                            className={`mr-2 text-[10px] font-bold uppercase ${
+                            className={`text-[10px] font-bold uppercase tracking-wider ${
                               v.purchased_successfully ? "text-primary" : "text-destructive"
                             }`}
                           >
-                            {v.purchased_successfully ? "Verified" : "No stock"}
+                            {v.purchased_successfully ? "Verified purchase" : "No stock"}
+                            {v.user_id === user?.id ? " · you" : ""}
                           </span>
-                          {v.note}
+                          {v.created_at && (
+                            <span className="text-[10px] text-muted-foreground">
+                              {new Date(v.created_at).toLocaleDateString()}
+                            </span>
+                          )}
                         </div>
-                      ))}
-                  </div>
-                )}
+                        <p className="mt-1 text-foreground/90">{v.note}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
 
               <div className="flex flex-col justify-between gap-3">
