@@ -324,13 +324,6 @@ function Vets() {
               />
             </svg>
 
-            <div
-              className="absolute -translate-x-1/2 -translate-y-1/2"
-              style={{ left: "45%", top: "50%" }}
-            >
-              {/* route line to the selected provider */}
-            </div>
-
             {selected && (
               <svg className="absolute inset-0 h-full w-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
                 <line
