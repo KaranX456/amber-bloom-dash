@@ -497,32 +497,41 @@ function Vets() {
                   </div>
                 </div>
 
-                {/* Recent community notes */}
-                {verifications.filter((v) => v.agrovet_id === selected.id && v.note).length > 0 && (
-                  <div className="mt-4 space-y-2">
-                    <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                      Farmer notes
+                {/* Farmer comments */}
+                <div className="mt-5 space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                    <MessageSquare className="h-3.5 w-3.5" /> Farmer comments · {selectedNotes.length}
+                  </div>
+                  {selectedNotes.length === 0 ? (
+                    <div className="rounded-xl bg-background p-3 text-sm text-muted-foreground ring-1 ring-border/60">
+                      No comments yet — be the first to share what you found here.
                     </div>
-                    {verifications
-                      .filter((v) => v.agrovet_id === selected.id && v.note)
-                      .slice(0, 4)
-                      .map((v) => (
-                        <div
-                          key={v.id}
-                          className="rounded-xl bg-background p-3 text-sm ring-1 ring-border/60"
-                        >
+                  ) : (
+                    selectedNotes.map((v) => (
+                      <div
+                        key={v.id}
+                        className="rounded-xl bg-background p-3 text-sm ring-1 ring-border/60"
+                      >
+                        <div className="flex items-center justify-between gap-2">
                           <span
-                            className={`mr-2 text-[10px] font-bold uppercase ${
+                            className={`text-[10px] font-bold uppercase tracking-wider ${
                               v.purchased_successfully ? "text-primary" : "text-destructive"
                             }`}
                           >
-                            {v.purchased_successfully ? "Verified" : "No stock"}
+                            {v.purchased_successfully ? "Verified purchase" : "No stock"}
+                            {v.user_id === user?.id ? " · you" : ""}
                           </span>
-                          {v.note}
+                          {v.created_at && (
+                            <span className="text-[10px] text-muted-foreground">
+                              {new Date(v.created_at).toLocaleDateString()}
+                            </span>
+                          )}
                         </div>
-                      ))}
-                  </div>
-                )}
+                        <p className="mt-1 text-foreground/90">{v.note}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
 
               <div className="flex flex-col justify-between gap-3">
