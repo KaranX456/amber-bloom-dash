@@ -112,7 +112,7 @@ export function SiteNav() {
 export function SiteFooter() {
   return (
     <footer className="mt-24 border-t border-border/60 bg-primary-deep text-primary-foreground">
-      <div className="mx-auto max-w-7xl px-6 py-12 grid gap-8 md:grid-cols-3">
+      <div className="mx-auto max-w-7xl px-6 py-12 grid gap-8 md:grid-cols-2">
         <div>
           <div className="flex items-center gap-2">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent text-accent-foreground">
