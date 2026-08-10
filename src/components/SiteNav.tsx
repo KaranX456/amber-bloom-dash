@@ -134,15 +134,6 @@ export function SiteFooter() {
             <li>Vet Finder</li>
           </ul>
         </div>
-        <div className="text-sm">
-          <h4 className="font-semibold mb-3 text-accent">Built by</h4>
-          <ul className="space-y-2 text-primary-foreground/70">
-            <li>Eugene &amp; Sheldon — Frontend</li>
-            <li>Benedict &amp; Linet — Backend</li>
-            <li>Nicholas &amp; Susan — ML</li>
-            <li>Josphat — Deployment</li>
-          </ul>
-        </div>
       </div>
       <div className="border-t border-white/10 py-4 text-center text-xs text-primary-foreground/60">
         © 2026 PoultryFit Kenya · A 7-person team project
