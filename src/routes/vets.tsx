@@ -433,6 +433,14 @@ function Vets() {
                     <Navigation className="h-4 w-4 text-primary" /> {selected.distance_km ?? 0} km ·
                     ~{Math.round((selected.distance_km ?? 0) * 4)} min by boda
                   </div>
+                  <a
+                    href={directionsUrl(selected)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-1 inline-flex w-fit items-center gap-2 rounded-full bg-primary-deep px-4 py-2 text-xs font-semibold text-primary-foreground hover:brightness-110 transition"
+                  >
+                    <RouteIcon className="h-4 w-4" /> Get directions
+                  </a>
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4 text-primary" /> {countFor(selected.id)} farmer
                     {countFor(selected.id) === 1 ? "" : "s"} confirmed a successful purchase
