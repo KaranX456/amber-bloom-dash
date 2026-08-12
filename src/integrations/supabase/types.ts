@@ -249,7 +249,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_agrovet_verifications: {
+        Args: never
+        Returns: {
+          agrovet_id: string
+          created_at: string
+          is_mine: boolean
+          note: string
+          purchased_successfully: boolean
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

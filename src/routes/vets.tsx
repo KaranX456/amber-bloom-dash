@@ -60,9 +60,8 @@ type Provider = {
 };
 
 type Verification = {
-  id: string;
   agrovet_id: string;
-  user_id: string;
+  is_mine: boolean;
   purchased_successfully: boolean;
   note: string | null;
   created_at?: string | null;
@@ -85,10 +84,7 @@ function Vets() {
         .from("agrovets")
         .select("id,name,kind,distance_km,rating,phone,hours,address,map_x,map_y")
         .order("distance_km", { ascending: true, nullsFirst: false }),
-      supabase
-        .from("agrovet_verifications")
-        .select("id,agrovet_id,user_id,purchased_successfully,note,created_at")
-        .order("created_at", { ascending: false }),
+      supabase.rpc("get_agrovet_verifications"),
     ]);
     if (p.error) toast.error("Could not load providers");
     setProviders((p.data as Provider[]) ?? []);
@@ -102,7 +98,7 @@ function Vets() {
 
   const countFor = (id: string) =>
     verifications.filter((v) => v.agrovet_id === id && v.purchased_successfully).length;
-  const mine = (id: string) => verifications.find((v) => v.agrovet_id === id && v.user_id === user?.id);
+  const mine = (id: string) => verifications.find((v) => v.agrovet_id === id && v.is_mine);
 
   const list = providers.filter(
     (p) =>
@@ -125,7 +121,7 @@ function Vets() {
 
   useEffect(() => {
     setNote(myVerification?.note ?? "");
-  }, [myVerification?.id, active]);
+  }, [myVerification?.agrovet_id, active]);
 
   async function confirmPurchase(purchased: boolean) {
     if (!selected || !user) return;
@@ -154,7 +150,8 @@ function Vets() {
     const { error } = await supabase
       .from("agrovet_verifications")
       .delete()
-      .eq("id", myVerification.id);
+      .eq("agrovet_id", myVerification.agrovet_id)
+      .eq("user_id", user?.id ?? "");
     setSaving(false);
     if (error) {
       toast.error("Could not remove your confirmation");
@@ -509,7 +506,7 @@ function Vets() {
                   ) : (
                     selectedNotes.map((v) => (
                       <div
-                        key={v.id}
+                        key={`${v.agrovet_id}-${v.created_at}`}
                         className="rounded-xl bg-background p-3 text-sm ring-1 ring-border/60"
                       >
                         <div className="flex items-center justify-between gap-2">
@@ -519,7 +516,7 @@ function Vets() {
                             }`}
                           >
                             {v.purchased_successfully ? "Verified purchase" : "No stock"}
-                            {v.user_id === user?.id ? " · you" : ""}
+                            {v.is_mine ? " · you" : ""}
                           </span>
                           {v.created_at && (
                             <span className="text-[10px] text-muted-foreground">
