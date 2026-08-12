@@ -246,41 +246,19 @@ export type Database = {
       }
     }
     Views: {
-      agrovet_verifications_public: {
-        Row: {
-          agrovet_id: string | null
-          created_at: string | null
-          is_mine: boolean | null
-          note: string | null
-          purchased_successfully: boolean | null
-        }
-        Insert: {
-          agrovet_id?: string | null
-          created_at?: string | null
-          is_mine?: never
-          note?: string | null
-          purchased_successfully?: boolean | null
-        }
-        Update: {
-          agrovet_id?: string | null
-          created_at?: string | null
-          is_mine?: never
-          note?: string | null
-          purchased_successfully?: boolean | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "agrovet_verifications_agrovet_id_fkey"
-            columns: ["agrovet_id"]
-            isOneToOne: false
-            referencedRelation: "agrovets"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
+      [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_agrovet_verifications: {
+        Args: never
+        Returns: {
+          agrovet_id: string
+          created_at: string
+          is_mine: boolean
+          note: string
+          purchased_successfully: boolean
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
